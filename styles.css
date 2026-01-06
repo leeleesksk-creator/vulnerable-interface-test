@@ -567,18 +567,23 @@ footer p {
     
     .radio-group,
     .checkbox-group {
-        gap: 6px;
+        gap: 10px;
     }
     
     .radio-group label,
     .checkbox-group label {
-        padding: 6px;
+        padding: 12px 8px;
         font-size: 0.9em;
+        min-height: 44px;
+        display: flex;
+        align-items: center;
     }
     
     .radio-group input,
     .checkbox-group input {
-        margin-right: 8px;
+        margin-right: 10px;
+        width: 20px;
+        height: 20px;
     }
     
     .error-alert {
