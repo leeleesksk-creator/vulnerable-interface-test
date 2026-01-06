@@ -3,83 +3,119 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Vulnerable Interface - Research Prototype</title>
+    <title>The Vulnerable Interface - Design Elements Research</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
         <header>
             <h1>The Vulnerable Interface</h1>
-            <p class="subtitle">A Research Prototype on Error State Interactions</p>
+            <p class="subtitle">Research on Design Elements in Error Alerts</p>
         </header>
 
         <div class="instructions">
-            <h2>Research Instructions</h2>
-            <p>This prototype demonstrates different types of error states in web interfaces. Click on each scenario below to trigger different error experiences.</p>
+            <h2>Research Objective</h2>
+            <p>This prototype tests how different <strong>design elements</strong> (sound, animation, color, typography, composition) affect user reactions to error alerts. Each variation shows the same error message but with different visual and sensory treatments.</p>
+            <p class="instruction-note">Try submitting the form below to experience different error design variations.</p>
         </div>
 
-        <section class="scenarios">
-            <div class="scenario-card">
-                <h3>Scenario 1: Form Validation Error</h3>
-                <p>Complete the form below to see validation errors</p>
-                <form id="validationForm">
+        <section class="test-area">
+            <div class="form-container">
+                <h3>Test Form</h3>
+                <p>Submit this form to trigger an error alert with the selected design treatment:</p>
+                
+                <form id="testForm">
                     <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="text" id="email" name="email" placeholder="Enter your email">
-                        <span class="error-message" id="emailError"></span>
+                        <label for="username">Username</label>
+                        <input type="text" id="username" name="username" placeholder="Enter username">
                     </div>
                     <div class="form-group">
-                        <label for="password">Password</label>
-                        <input type="password" id="password" name="password" placeholder="Enter your password">
-                        <span class="error-message" id="passwordError"></span>
+                        <label for="email">Email</label>
+                        <input type="text" id="email" name="email" placeholder="Enter email">
                     </div>
-                    <button type="submit" class="btn">Submit Form</button>
+                    <button type="submit" class="btn btn-primary">Submit Form</button>
                 </form>
+
+                <div id="errorContainer"></div>
             </div>
 
-            <div class="scenario-card">
-                <h3>Scenario 2: Network Error</h3>
-                <p>Simulate a connection failure</p>
-                <button class="btn" id="networkErrorBtn">Trigger Network Error</button>
-                <div class="error-display" id="networkErrorDisplay"></div>
-            </div>
+            <div class="design-controls">
+                <h3>Design Variation Controls</h3>
+                <p>Select which design elements to test:</p>
 
-            <div class="scenario-card">
-                <h3>Scenario 3: System Error (500)</h3>
-                <p>Experience a server error</p>
-                <button class="btn" id="systemErrorBtn">Trigger System Error</button>
-                <div class="error-display" id="systemErrorDisplay"></div>
-            </div>
+                <div class="control-group">
+                    <h4>Animation Style</h4>
+                    <div class="radio-group">
+                        <label><input type="radio" name="animation" value="shake" checked> Shake</label>
+                        <label><input type="radio" name="animation" value="bounce"> Bounce</label>
+                        <label><input type="radio" name="animation" value="pulse"> Pulse</label>
+                        <label><input type="radio" name="animation" value="fade"> Fade In</label>
+                        <label><input type="radio" name="animation" value="slide"> Slide Down</label>
+                        <label><input type="radio" name="animation" value="none"> No Animation</label>
+                    </div>
+                </div>
 
-            <div class="scenario-card">
-                <h3>Scenario 4: Permission Denied</h3>
-                <p>Try to access restricted content</p>
-                <button class="btn" id="permissionErrorBtn">Access Restricted Area</button>
-                <div class="error-display" id="permissionErrorDisplay"></div>
-            </div>
+                <div class="control-group">
+                    <h4>Color Scheme</h4>
+                    <div class="radio-group">
+                        <label><input type="radio" name="color" value="aggressive-red" checked> Aggressive Red</label>
+                        <label><input type="radio" name="color" value="soft-red"> Soft Red</label>
+                        <label><input type="radio" name="color" value="orange"> Warning Orange</label>
+                        <label><input type="radio" name="color" value="neutral"> Neutral Gray</label>
+                        <label><input type="radio" name="color" value="dark"> Dark Mode</label>
+                    </div>
+                </div>
 
-            <div class="scenario-card">
-                <h3>Scenario 5: Timeout Error</h3>
-                <p>Simulate a request timeout</p>
-                <button class="btn" id="timeoutErrorBtn">Trigger Timeout</button>
-                <div class="error-display" id="timeoutErrorDisplay"></div>
-            </div>
+                <div class="control-group">
+                    <h4>Typography</h4>
+                    <div class="radio-group">
+                        <label><input type="radio" name="typography" value="bold" checked> Bold & Large</label>
+                        <label><input type="radio" name="typography" value="normal"> Normal Weight</label>
+                        <label><input type="radio" name="typography" value="light"> Light & Small</label>
+                        <label><input type="radio" name="typography" value="serif"> Serif Font</label>
+                        <label><input type="radio" name="typography" value="mono"> Monospace</label>
+                    </div>
+                </div>
 
-            <div class="scenario-card">
-                <h3>Scenario 6: Rate Limit Error</h3>
-                <p>Exceed the allowed request limit</p>
-                <button class="btn" id="rateLimitBtn">Make Multiple Requests</button>
-                <div class="error-display" id="rateLimitDisplay"></div>
+                <div class="control-group">
+                    <h4>Sound Effect</h4>
+                    <div class="radio-group">
+                        <label><input type="radio" name="sound" value="alert" checked> Alert Beep</label>
+                        <label><input type="radio" name="sound" value="error"> Error Buzz</label>
+                        <label><input type="radio" name="sound" value="soft"> Soft Notification</label>
+                        <label><input type="radio" name="sound" value="click"> UI Click</label>
+                        <label><input type="radio" name="sound" value="none"> No Sound</label>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <h4>Visual Effects</h4>
+                    <div class="checkbox-group">
+                        <label><input type="checkbox" id="shadow" checked> Drop Shadow</label>
+                        <label><input type="checkbox" id="border"> Thick Border</label>
+                        <label><input type="checkbox" id="icon" checked> Icon</label>
+                        <label><input type="checkbox" id="gradient"> Gradient Background</label>
+                        <label><input type="checkbox" id="glow"> Glow Effect</label>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <h4>Position & Size</h4>
+                    <div class="radio-group">
+                        <label><input type="radio" name="position" value="inline" checked> Inline (Below Form)</label>
+                        <label><input type="radio" name="position" value="top"> Top Banner</label>
+                        <label><input type="radio" name="position" value="center"> Center Modal</label>
+                        <label><input type="radio" name="position" value="toast"> Toast (Top Right)</label>
+                    </div>
+                </div>
+
+                <button class="btn btn-reset" id="resetBtn">Reset Test</button>
             </div>
         </section>
 
-        <div class="reset-section">
-            <button class="btn btn-reset" id="resetBtn">Reset All Scenarios</button>
-        </div>
-
         <footer>
             <p>Visual Design Research Prototype | The Vulnerable Interface</p>
-            <p class="note">This is a research tool for studying user reactions to error states</p>
+            <p class="note">Testing the impact of design elements on user emotional response to errors</p>
         </footer>
     </div>
 

@@ -1,186 +1,183 @@
-// The Vulnerable Interface - JavaScript for Error State Demonstrations
+// The Vulnerable Interface - Design Elements Research
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Scenario 1: Form Validation Error
-    const validationForm = document.getElementById('validationForm');
-    const emailInput = document.getElementById('email');
-    const passwordInput = document.getElementById('password');
-    const emailError = document.getElementById('emailError');
-    const passwordError = document.getElementById('passwordError');
-
-    validationForm.addEventListener('submit', function(e) {
+    const testForm = document.getElementById('testForm');
+    const errorContainer = document.getElementById('errorContainer');
+    const resetBtn = document.getElementById('resetBtn');
+    
+    // Audio context for sound effects
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    
+    // Sound effect generator
+    function playSound(type) {
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        switch(type) {
+            case 'alert':
+                oscillator.frequency.value = 800;
+                oscillator.type = 'square';
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.3);
+                break;
+            case 'error':
+                oscillator.frequency.value = 200;
+                oscillator.type = 'sawtooth';
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.5);
+                break;
+            case 'soft':
+                oscillator.frequency.value = 600;
+                oscillator.type = 'sine';
+                gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.4);
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.4);
+                break;
+            case 'click':
+                oscillator.frequency.value = 1000;
+                oscillator.type = 'sine';
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.1);
+                break;
+        }
+    }
+    
+    // Get selected design options
+    function getSelectedOptions() {
+        return {
+            animation: document.querySelector('input[name="animation"]:checked').value,
+            color: document.querySelector('input[name="color"]:checked').value,
+            typography: document.querySelector('input[name="typography"]:checked').value,
+            sound: document.querySelector('input[name="sound"]:checked').value,
+            position: document.querySelector('input[name="position"]:checked').value,
+            shadow: document.getElementById('shadow').checked,
+            border: document.getElementById('border').checked,
+            icon: document.getElementById('icon').checked,
+            gradient: document.getElementById('gradient').checked,
+            glow: document.getElementById('glow').checked
+        };
+    }
+    
+    // Create error alert with selected design
+    function showErrorAlert(options) {
+        // Clear previous error
+        errorContainer.innerHTML = '';
+        
+        // Remove any existing modal overlay
+        const existingOverlay = document.querySelector('.modal-overlay');
+        if (existingOverlay) {
+            existingOverlay.remove();
+        }
+        
+        // Create error alert element
+        const errorAlert = document.createElement('div');
+        errorAlert.className = 'error-alert';
+        errorAlert.textContent = 'Error: Please fill in all required fields before submitting.';
+        
+        // Apply color scheme
+        errorAlert.classList.add(`color-${options.color}`);
+        
+        // Apply typography
+        errorAlert.classList.add(`typo-${options.typography}`);
+        
+        // Apply position
+        errorAlert.classList.add(`position-${options.position}`);
+        
+        // Apply visual effects
+        if (options.shadow) errorAlert.classList.add('effect-shadow');
+        if (options.border) errorAlert.classList.add('effect-border');
+        if (options.icon) errorAlert.classList.add('effect-icon');
+        if (options.gradient) errorAlert.classList.add('effect-gradient');
+        if (options.glow) errorAlert.classList.add('effect-glow');
+        
+        // Add modal overlay for center position
+        if (options.position === 'center') {
+            const overlay = document.createElement('div');
+            overlay.className = 'modal-overlay';
+            document.body.appendChild(overlay);
+            document.body.appendChild(errorAlert);
+            
+            // Close on overlay click
+            overlay.addEventListener('click', function() {
+                errorAlert.remove();
+                overlay.remove();
+            });
+        } else if (options.position === 'top' || options.position === 'toast') {
+            document.body.appendChild(errorAlert);
+        } else {
+            errorContainer.appendChild(errorAlert);
+        }
+        
+        // Apply animation
+        if (options.animation !== 'none') {
+            errorAlert.classList.add(`animate-${options.animation}`);
+        }
+        
+        // Play sound effect
+        if (options.sound !== 'none') {
+            playSound(options.sound);
+        }
+        
+        // Auto-remove toast and top notifications after 5 seconds
+        if (options.position === 'toast' || options.position === 'top') {
+            setTimeout(function() {
+                errorAlert.style.opacity = '0';
+                errorAlert.style.transition = 'opacity 0.3s ease';
+                setTimeout(function() {
+                    errorAlert.remove();
+                }, 300);
+            }, 5000);
+        }
+    }
+    
+    // Form submission handler
+    testForm.addEventListener('submit', function(e) {
         e.preventDefault();
         
-        let hasError = false;
-        
-        // Reset errors
-        emailError.textContent = '';
-        passwordError.textContent = '';
-        emailInput.classList.remove('error');
-        passwordInput.classList.remove('error');
-        
-        // Validate email
-        const emailValue = emailInput.value.trim();
-        if (emailValue === '') {
-            emailError.textContent = '❌ Email is required';
-            emailInput.classList.add('error');
-            hasError = true;
-        } else if (!isValidEmail(emailValue)) {
-            emailError.textContent = '❌ Please enter a valid email address';
-            emailInput.classList.add('error');
-            hasError = true;
-        }
-        
-        // Validate password
-        const passwordValue = passwordInput.value;
-        if (passwordValue === '') {
-            passwordError.textContent = '❌ Password is required';
-            passwordInput.classList.add('error');
-            hasError = true;
-        } else if (passwordValue.length < 8) {
-            passwordError.textContent = '❌ Password must be at least 8 characters long';
-            passwordInput.classList.add('error');
-            hasError = true;
-        }
-        
-        if (!hasError) {
-            alert('✅ Form submitted successfully! (This is just a demonstration)');
-            validationForm.reset();
-        }
+        const options = getSelectedOptions();
+        showErrorAlert(options);
     });
-
-    // Scenario 2: Network Error
-    const networkErrorBtn = document.getElementById('networkErrorBtn');
-    const networkErrorDisplay = document.getElementById('networkErrorDisplay');
-
-    networkErrorBtn.addEventListener('click', function() {
-        networkErrorDisplay.innerHTML = `
-            <div class="error-box">
-                <h4>🌐 Network Connection Failed</h4>
-                <p>Unable to reach the server. Please check your internet connection.</p>
-                <p><span class="error-code">ERR_NETWORK_FAILURE</span></p>
-                <p style="margin-top: 10px; font-size: 0.9em;">Common causes:</p>
-                <ul style="margin-left: 20px; font-size: 0.9em;">
-                    <li>No internet connection</li>
-                    <li>Server is down</li>
-                    <li>Firewall blocking the request</li>
-                </ul>
-            </div>
-        `;
-    });
-
-    // Scenario 3: System Error (500)
-    const systemErrorBtn = document.getElementById('systemErrorBtn');
-    const systemErrorDisplay = document.getElementById('systemErrorDisplay');
-
-    systemErrorBtn.addEventListener('click', function() {
-        systemErrorDisplay.innerHTML = `
-            <div class="error-box">
-                <h4>⚠️ Internal Server Error</h4>
-                <p>Something went wrong on our end. We're working to fix it.</p>
-                <p><span class="error-code">HTTP 500 - Internal Server Error</span></p>
-                <p style="margin-top: 10px; font-size: 0.9em;">
-                    Our team has been notified. Please try again later.
-                </p>
-                <p style="font-size: 0.85em; color: #666; margin-top: 5px;">
-                    Error ID: ERR-${generateErrorId()}
-                </p>
-            </div>
-        `;
-    });
-
-    // Scenario 4: Permission Denied
-    const permissionErrorBtn = document.getElementById('permissionErrorBtn');
-    const permissionErrorDisplay = document.getElementById('permissionErrorDisplay');
-
-    permissionErrorBtn.addEventListener('click', function() {
-        permissionErrorDisplay.innerHTML = `
-            <div class="error-box warning">
-                <h4>🔒 Access Denied</h4>
-                <p>You don't have permission to access this resource.</p>
-                <p><span class="error-code">HTTP 403 - Forbidden</span></p>
-                <p style="margin-top: 10px; font-size: 0.9em;">
-                    This area is restricted to authorized users only.
-                </p>
-                <p style="font-size: 0.9em; margin-top: 5px;">
-                    Need access? Contact your administrator.
-                </p>
-            </div>
-        `;
-    });
-
-    // Scenario 5: Timeout Error
-    const timeoutErrorBtn = document.getElementById('timeoutErrorBtn');
-    const timeoutErrorDisplay = document.getElementById('timeoutErrorDisplay');
-
-    timeoutErrorBtn.addEventListener('click', function() {
-        timeoutErrorDisplay.innerHTML = `
-            <div class="error-box info">
-                <h4>⏱️ Request Timeout</h4>
-                <p>The request took too long to complete.</p>
-                <p><span class="error-code">HTTP 408 - Request Timeout</span></p>
-                <p style="margin-top: 10px; font-size: 0.9em;">
-                    The server didn't receive a complete request in the expected time.
-                </p>
-                <p style="font-size: 0.9em; margin-top: 5px;">
-                    Please try again. If the problem persists, contact support.
-                </p>
-            </div>
-        `;
-    });
-
-    // Scenario 6: Rate Limit Error
-    const rateLimitBtn = document.getElementById('rateLimitBtn');
-    const rateLimitDisplay = document.getElementById('rateLimitDisplay');
-
-    rateLimitBtn.addEventListener('click', function() {
-        rateLimitDisplay.innerHTML = `
-            <div class="error-box warning">
-                <h4>🚫 Rate Limit Exceeded</h4>
-                <p>You've made too many requests. Please slow down.</p>
-                <p><span class="error-code">HTTP 429 - Too Many Requests</span></p>
-                <p style="margin-top: 10px; font-size: 0.9em;">
-                    Rate limit: 100 requests per minute
-                </p>
-                <p style="font-size: 0.9em; margin-top: 5px;">
-                    Try again in: <strong>45 seconds</strong>
-                </p>
-            </div>
-        `;
-    });
-
-    // Reset All Scenarios
-    const resetBtn = document.getElementById('resetBtn');
-
+    
+    // Reset button handler
     resetBtn.addEventListener('click', function() {
-        // Reset form
-        validationForm.reset();
-        emailError.textContent = '';
-        passwordError.textContent = '';
-        emailInput.classList.remove('error');
-        passwordInput.classList.remove('error');
+        // Clear error display
+        errorContainer.innerHTML = '';
         
-        // Clear all error displays
-        networkErrorDisplay.innerHTML = '';
-        systemErrorDisplay.innerHTML = '';
-        permissionErrorDisplay.innerHTML = '';
-        timeoutErrorDisplay.innerHTML = '';
-        rateLimitDisplay.innerHTML = '';
+        // Remove any errors from body
+        const bodyErrors = document.querySelectorAll('body > .error-alert');
+        bodyErrors.forEach(error => error.remove());
+        
+        // Remove any modal overlays
+        const overlays = document.querySelectorAll('.modal-overlay');
+        overlays.forEach(overlay => overlay.remove());
+        
+        // Reset form
+        testForm.reset();
         
         // Visual feedback
         resetBtn.textContent = '✅ Reset Complete!';
         setTimeout(function() {
-            resetBtn.textContent = 'Reset All Scenarios';
+            resetBtn.textContent = 'Reset Test';
         }, 2000);
     });
-
-    // Helper Functions
-    function isValidEmail(email) {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        return emailRegex.test(email);
-    }
-
-    function generateErrorId() {
-        return Math.random().toString(36).slice(2, 11).toUpperCase();
-    }
+    
+    // Add change listeners to play preview sounds
+    const soundRadios = document.querySelectorAll('input[name="sound"]');
+    soundRadios.forEach(radio => {
+        radio.addEventListener('change', function() {
+            if (this.value !== 'none') {
+                playSound(this.value);
+            }
+        });
+    });
 });
