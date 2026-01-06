@@ -5,49 +5,57 @@ document.addEventListener('DOMContentLoaded', function() {
     const errorContainer = document.getElementById('errorContainer');
     const resetBtn = document.getElementById('resetBtn');
     
-    // Audio context for sound effects
-    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    // Audio context for sound effects (initialized on first use to comply with browser policies)
+    let audioContext = null;
+    
+    function initAudioContext() {
+        if (!audioContext) {
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        return audioContext;
+    }
     
     // Sound effect generator
     function playSound(type) {
-        const oscillator = audioContext.createOscillator();
-        const gainNode = audioContext.createGain();
+        const ctx = initAudioContext();
+        const oscillator = ctx.createOscillator();
+        const gainNode = ctx.createGain();
         
         oscillator.connect(gainNode);
-        gainNode.connect(audioContext.destination);
+        gainNode.connect(ctx.destination);
         
         switch(type) {
             case 'alert':
                 oscillator.frequency.value = 800;
                 oscillator.type = 'square';
-                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
-                oscillator.start(audioContext.currentTime);
-                oscillator.stop(audioContext.currentTime + 0.3);
+                gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
+                gainNode.gain.linearRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+                oscillator.start(ctx.currentTime);
+                oscillator.stop(ctx.currentTime + 0.3);
                 break;
             case 'error':
                 oscillator.frequency.value = 200;
                 oscillator.type = 'sawtooth';
-                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
-                oscillator.start(audioContext.currentTime);
-                oscillator.stop(audioContext.currentTime + 0.5);
+                gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
+                gainNode.gain.linearRampToValueAtTime(0.001, ctx.currentTime + 0.5);
+                oscillator.start(ctx.currentTime);
+                oscillator.stop(ctx.currentTime + 0.5);
                 break;
             case 'soft':
                 oscillator.frequency.value = 600;
                 oscillator.type = 'sine';
-                gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
-                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.4);
-                oscillator.start(audioContext.currentTime);
-                oscillator.stop(audioContext.currentTime + 0.4);
+                gainNode.gain.setValueAtTime(0.2, ctx.currentTime);
+                gainNode.gain.linearRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+                oscillator.start(ctx.currentTime);
+                oscillator.stop(ctx.currentTime + 0.4);
                 break;
             case 'click':
                 oscillator.frequency.value = 1000;
                 oscillator.type = 'sine';
-                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
-                oscillator.start(audioContext.currentTime);
-                oscillator.stop(audioContext.currentTime + 0.1);
+                gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
+                gainNode.gain.linearRampToValueAtTime(0.001, ctx.currentTime + 0.1);
+                oscillator.start(ctx.currentTime);
+                oscillator.stop(ctx.currentTime + 0.1);
                 break;
         }
     }
@@ -82,7 +90,23 @@ document.addEventListener('DOMContentLoaded', function() {
         // Create error alert element
         const errorAlert = document.createElement('div');
         errorAlert.className = 'error-alert';
-        errorAlert.textContent = 'Error: Please fill in all required fields before submitting.';
+        errorAlert.setAttribute('role', 'alert');
+        errorAlert.setAttribute('aria-live', 'assertive');
+        
+        // Add icon if selected
+        if (options.icon) {
+            const iconSpan = document.createElement('span');
+            iconSpan.setAttribute('aria-label', 'Warning');
+            iconSpan.textContent = '⚠️ ';
+            iconSpan.style.fontSize = '1.5em';
+            iconSpan.style.marginRight = '10px';
+            errorAlert.appendChild(iconSpan);
+        }
+        
+        // Add text content
+        const textSpan = document.createElement('span');
+        textSpan.textContent = 'Error: Please fill in all required fields before submitting.';
+        errorAlert.appendChild(textSpan);
         
         // Apply color scheme
         errorAlert.classList.add(`color-${options.color}`);
@@ -96,21 +120,50 @@ document.addEventListener('DOMContentLoaded', function() {
         // Apply visual effects
         if (options.shadow) errorAlert.classList.add('effect-shadow');
         if (options.border) errorAlert.classList.add('effect-border');
-        if (options.icon) errorAlert.classList.add('effect-icon');
         if (options.gradient) errorAlert.classList.add('effect-gradient');
         if (options.glow) errorAlert.classList.add('effect-glow');
+        
+        // Function to close error alert
+        function closeErrorAlert() {
+            errorAlert.remove();
+            const overlay = document.querySelector('.modal-overlay');
+            if (overlay) {
+                overlay.remove();
+            }
+        }
         
         // Add modal overlay for center position
         if (options.position === 'center') {
             const overlay = document.createElement('div');
             overlay.className = 'modal-overlay';
+            overlay.setAttribute('role', 'button');
+            overlay.setAttribute('aria-label', 'Close error message');
+            overlay.setAttribute('tabindex', '0');
             document.body.appendChild(overlay);
             document.body.appendChild(errorAlert);
             
+            // Make error alert focusable
+            errorAlert.setAttribute('tabindex', '0');
+            errorAlert.focus();
+            
             // Close on overlay click
-            overlay.addEventListener('click', function() {
-                errorAlert.remove();
-                overlay.remove();
+            overlay.addEventListener('click', closeErrorAlert);
+            
+            // Close on Escape key
+            function handleKeyDown(e) {
+                if (e.key === 'Escape') {
+                    closeErrorAlert();
+                    document.removeEventListener('keydown', handleKeyDown);
+                }
+            }
+            document.addEventListener('keydown', handleKeyDown);
+            
+            // Close on overlay Enter/Space
+            overlay.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    closeErrorAlert();
+                }
             });
         } else if (options.position === 'top' || options.position === 'toast') {
             document.body.appendChild(errorAlert);

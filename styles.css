@@ -339,12 +339,6 @@ header h1 {
     border-style: solid !important;
 }
 
-.effect-icon::before {
-    content: '⚠️ ';
-    font-size: 1.5em;
-    margin-right: 10px;
-}
-
 .effect-gradient {
     background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%) !important;
     color: white;
