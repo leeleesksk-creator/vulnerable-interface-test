@@ -106,7 +106,6 @@ document.addEventListener('DOMContentLoaded', function() {
             ...details
         };
         sessionData.interactions.push(interaction);
-        console.log('Interaction tracked:', interaction);
     }
     
     // Create and show error alert
