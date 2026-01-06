@@ -3,119 +3,125 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Vulnerable Interface - Design Elements Research</title>
+    <title>The Vulnerable Interface - Research Platform</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
+        <!-- Researcher Controls (Hidden by default) -->
+        <div class="researcher-panel" id="researcherPanel">
+            <div class="panel-header">
+                <h2>🔬 Researcher Controls</h2>
+                <button class="btn-close" id="closePanel">✕</button>
+            </div>
+            
+            <div class="panel-content">
+                <h3>Design Configuration</h3>
+                <p class="help-text">Configure the error alert design that will be shown to participants</p>
+                
+                <div class="config-group">
+                    <h4>Animation Style</h4>
+                    <select id="animationSelect">
+                        <option value="shake">Shake</option>
+                        <option value="bounce">Bounce</option>
+                        <option value="pulse">Pulse</option>
+                        <option value="fade">Fade In</option>
+                        <option value="slide">Slide Down</option>
+                        <option value="none">No Animation</option>
+                    </select>
+                </div>
+
+                <div class="config-group">
+                    <h4>Color Scheme</h4>
+                    <select id="colorSelect">
+                        <option value="aggressive-red">Aggressive Red</option>
+                        <option value="soft-red">Soft Red</option>
+                        <option value="orange">Warning Orange</option>
+                        <option value="neutral">Neutral Gray</option>
+                        <option value="dark">Dark Mode</option>
+                    </select>
+                </div>
+
+                <div class="config-group">
+                    <h4>Typography</h4>
+                    <select id="typographySelect">
+                        <option value="bold">Bold & Large</option>
+                        <option value="normal">Normal Weight</option>
+                        <option value="light">Light & Small</option>
+                        <option value="serif">Serif Font</option>
+                        <option value="mono">Monospace</option>
+                    </select>
+                </div>
+
+                <div class="config-group">
+                    <h4>Sound Effect</h4>
+                    <select id="soundSelect">
+                        <option value="alert">Alert Beep</option>
+                        <option value="error">Error Buzz</option>
+                        <option value="soft">Soft Notification</option>
+                        <option value="click">UI Click</option>
+                        <option value="none">No Sound</option>
+                    </select>
+                </div>
+
+                <div class="config-group">
+                    <h4>Visual Effects</h4>
+                    <div class="checkbox-list">
+                        <label><input type="checkbox" id="shadowCheck" checked> Drop Shadow</label>
+                        <label><input type="checkbox" id="borderCheck"> Thick Border</label>
+                        <label><input type="checkbox" id="iconCheck" checked> Warning Icon</label>
+                        <label><input type="checkbox" id="gradientCheck"> Gradient Background</label>
+                        <label><input type="checkbox" id="glowCheck"> Glow Effect</label>
+                    </div>
+                </div>
+
+                <div class="config-group">
+                    <h4>Position</h4>
+                    <select id="positionSelect">
+                        <option value="inline">Inline (Below Button)</option>
+                        <option value="top">Top Banner</option>
+                        <option value="center">Center Modal</option>
+                        <option value="toast">Toast (Top Right)</option>
+                    </select>
+                </div>
+
+                <button class="btn btn-preview" id="previewBtn">Preview Design</button>
+                <button class="btn btn-reset-config" id="resetConfig">Reset to Defaults</button>
+            </div>
+
+            <div class="analytics-section">
+                <h3>📊 Session Analytics</h3>
+                <div id="analyticsDisplay">
+                    <p class="no-data">No test sessions recorded yet. Participant clicks will be tracked here.</p>
+                </div>
+                <button class="btn btn-secondary" id="clearAnalytics">Clear Analytics Data</button>
+                <button class="btn btn-secondary" id="exportAnalytics">Export Data (CSV)</button>
+            </div>
+        </div>
+
+        <!-- Main Test Interface -->
         <header>
             <h1>The Vulnerable Interface</h1>
-            <p class="subtitle">Research on Design Elements in Error Alerts</p>
+            <p class="subtitle">User Experience Research Study</p>
         </header>
 
         <div class="instructions">
-            <h2>Research Objective</h2>
-            <p>This prototype tests how different <strong>design elements</strong> (sound, animation, color, typography, composition) affect user reactions to error alerts. Each variation shows the same error message but with different visual and sensory treatments.</p>
-            <p class="instruction-note">Try submitting the form below to experience different error design variations.</p>
+            <h2>Welcome to the Study</h2>
+            <p>This is a research study on user interface interactions. When you click the button below, an alert message will appear. Please interact with it naturally - there are no right or wrong answers.</p>
+            <p class="instruction-note">Your interaction patterns will be recorded anonymously for research purposes.</p>
         </div>
 
-        <section class="test-area">
-            <div class="form-container">
-                <h3>Test Form</h3>
-                <p>Submit this form to trigger an error alert with the selected design treatment:</p>
-                
-                <form id="testForm">
-                    <div class="form-group">
-                        <label for="username">Username</label>
-                        <input type="text" id="username" name="username" placeholder="Enter username">
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email</label>
-                        <input type="text" id="email" name="email" placeholder="Enter email">
-                    </div>
-                    <button type="submit" class="btn btn-primary">Submit Form</button>
-                </form>
-
+        <div class="test-interface">
+            <div class="test-content">
+                <button class="btn btn-start" id="startBtn">Start Test</button>
                 <div id="errorContainer"></div>
             </div>
-
-            <div class="design-controls">
-                <h3>Design Variation Controls</h3>
-                <p>Select which design elements to test:</p>
-
-                <div class="control-group">
-                    <h4>Animation Style</h4>
-                    <div class="radio-group">
-                        <label><input type="radio" name="animation" value="shake" checked> Shake</label>
-                        <label><input type="radio" name="animation" value="bounce"> Bounce</label>
-                        <label><input type="radio" name="animation" value="pulse"> Pulse</label>
-                        <label><input type="radio" name="animation" value="fade"> Fade In</label>
-                        <label><input type="radio" name="animation" value="slide"> Slide Down</label>
-                        <label><input type="radio" name="animation" value="none"> No Animation</label>
-                    </div>
-                </div>
-
-                <div class="control-group">
-                    <h4>Color Scheme</h4>
-                    <div class="radio-group">
-                        <label><input type="radio" name="color" value="aggressive-red" checked> Aggressive Red</label>
-                        <label><input type="radio" name="color" value="soft-red"> Soft Red</label>
-                        <label><input type="radio" name="color" value="orange"> Warning Orange</label>
-                        <label><input type="radio" name="color" value="neutral"> Neutral Gray</label>
-                        <label><input type="radio" name="color" value="dark"> Dark Mode</label>
-                    </div>
-                </div>
-
-                <div class="control-group">
-                    <h4>Typography</h4>
-                    <div class="radio-group">
-                        <label><input type="radio" name="typography" value="bold" checked> Bold & Large</label>
-                        <label><input type="radio" name="typography" value="normal"> Normal Weight</label>
-                        <label><input type="radio" name="typography" value="light"> Light & Small</label>
-                        <label><input type="radio" name="typography" value="serif"> Serif Font</label>
-                        <label><input type="radio" name="typography" value="mono"> Monospace</label>
-                    </div>
-                </div>
-
-                <div class="control-group">
-                    <h4>Sound Effect</h4>
-                    <div class="radio-group">
-                        <label><input type="radio" name="sound" value="alert" checked> Alert Beep</label>
-                        <label><input type="radio" name="sound" value="error"> Error Buzz</label>
-                        <label><input type="radio" name="sound" value="soft"> Soft Notification</label>
-                        <label><input type="radio" name="sound" value="click"> UI Click</label>
-                        <label><input type="radio" name="sound" value="none"> No Sound</label>
-                    </div>
-                </div>
-
-                <div class="control-group">
-                    <h4>Visual Effects</h4>
-                    <div class="checkbox-group">
-                        <label><input type="checkbox" id="shadow" checked> Drop Shadow</label>
-                        <label><input type="checkbox" id="border"> Thick Border</label>
-                        <label><input type="checkbox" id="icon" checked> Icon</label>
-                        <label><input type="checkbox" id="gradient"> Gradient Background</label>
-                        <label><input type="checkbox" id="glow"> Glow Effect</label>
-                    </div>
-                </div>
-
-                <div class="control-group">
-                    <h4>Position & Size</h4>
-                    <div class="radio-group">
-                        <label><input type="radio" name="position" value="inline" checked> Inline (Below Form)</label>
-                        <label><input type="radio" name="position" value="top"> Top Banner</label>
-                        <label><input type="radio" name="position" value="center"> Center Modal</label>
-                        <label><input type="radio" name="position" value="toast"> Toast (Top Right)</label>
-                    </div>
-                </div>
-
-                <button class="btn btn-reset" id="resetBtn">Reset Test</button>
-            </div>
-        </section>
+        </div>
 
         <footer>
             <p>Visual Design Research Prototype | The Vulnerable Interface</p>
-            <p class="note">Testing the impact of design elements on user emotional response to errors</p>
+            <p class="note">Testing the impact of design elements on user emotional response</p>
+            <button class="researcher-access-btn" id="toggleResearcher">🔬 Researcher Mode</button>
         </footer>
     </div>
 

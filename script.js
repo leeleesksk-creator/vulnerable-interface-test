@@ -1,11 +1,31 @@
-// The Vulnerable Interface - Design Elements Research
+// The Vulnerable Interface - Research Platform with Analytics
 
 document.addEventListener('DOMContentLoaded', function() {
-    const testForm = document.getElementById('testForm');
+    // UI Elements
+    const startBtn = document.getElementById('startBtn');
     const errorContainer = document.getElementById('errorContainer');
-    const resetBtn = document.getElementById('resetBtn');
+    const toggleResearcher = document.getElementById('toggleResearcher');
+    const researcherPanel = document.getElementById('researcherPanel');
+    const closePanel = document.getElementById('closePanel');
+    const previewBtn = document.getElementById('previewBtn');
+    const resetConfig = document.getElementById('resetConfig');
+    const clearAnalytics = document.getElementById('clearAnalytics');
+    const exportAnalytics = document.getElementById('exportAnalytics');
+    const analyticsDisplay = document.getElementById('analyticsDisplay');
     
-    // Audio context for sound effects (initialized on first use to comply with browser policies)
+    // Analytics tracking
+    let sessionData = {
+        sessionId: generateSessionId(),
+        startTime: null,
+        alertShownTime: null,
+        interactions: [],
+        dismissed: false,
+        dismissTime: null
+    };
+    
+    let allSessions = loadSessionsFromStorage();
+    
+    // Audio context for sound effects
     let audioContext = null;
     
     function initAudioContext() {
@@ -60,24 +80,37 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // Get selected design options
-    function getSelectedOptions() {
+    // Get current design configuration
+    function getCurrentConfig() {
         return {
-            animation: document.querySelector('input[name="animation"]:checked').value,
-            color: document.querySelector('input[name="color"]:checked').value,
-            typography: document.querySelector('input[name="typography"]:checked').value,
-            sound: document.querySelector('input[name="sound"]:checked').value,
-            position: document.querySelector('input[name="position"]:checked').value,
-            shadow: document.getElementById('shadow').checked,
-            border: document.getElementById('border').checked,
-            icon: document.getElementById('icon').checked,
-            gradient: document.getElementById('gradient').checked,
-            glow: document.getElementById('glow').checked
+            animation: document.getElementById('animationSelect').value,
+            color: document.getElementById('colorSelect').value,
+            typography: document.getElementById('typographySelect').value,
+            sound: document.getElementById('soundSelect').value,
+            position: document.getElementById('positionSelect').value,
+            shadow: document.getElementById('shadowCheck').checked,
+            border: document.getElementById('borderCheck').checked,
+            icon: document.getElementById('iconCheck').checked,
+            gradient: document.getElementById('gradientCheck').checked,
+            glow: document.getElementById('glowCheck').checked
         };
     }
     
-    // Create error alert with selected design
-    function showErrorAlert(options) {
+    // Track interaction
+    function trackInteraction(eventType, details = {}) {
+        const interaction = {
+            type: eventType,
+            timestamp: Date.now(),
+            timeSinceStart: sessionData.startTime ? Date.now() - sessionData.startTime : 0,
+            timeSinceAlert: sessionData.alertShownTime ? Date.now() - sessionData.alertShownTime : 0,
+            ...details
+        };
+        sessionData.interactions.push(interaction);
+        console.log('Interaction tracked:', interaction);
+    }
+    
+    // Create and show error alert
+    function showErrorAlert(config) {
         // Clear previous error
         errorContainer.innerHTML = '';
         
@@ -94,7 +127,7 @@ document.addEventListener('DOMContentLoaded', function() {
         errorAlert.setAttribute('aria-live', 'assertive');
         
         // Add icon if selected
-        if (options.icon) {
+        if (config.icon) {
             const iconSpan = document.createElement('span');
             iconSpan.setAttribute('aria-label', 'Warning');
             iconSpan.textContent = '⚠️ ';
@@ -108,32 +141,65 @@ document.addEventListener('DOMContentLoaded', function() {
         textSpan.textContent = 'Error: Please fill in all required fields before submitting.';
         errorAlert.appendChild(textSpan);
         
+        // Add dismiss button
+        const dismissBtn = document.createElement('button');
+        dismissBtn.className = 'btn-dismiss';
+        dismissBtn.textContent = 'OK';
+        dismissBtn.setAttribute('aria-label', 'Dismiss error alert');
+        errorAlert.appendChild(dismissBtn);
+        
         // Apply color scheme
-        errorAlert.classList.add(`color-${options.color}`);
+        errorAlert.classList.add(`color-${config.color}`);
         
         // Apply typography
-        errorAlert.classList.add(`typo-${options.typography}`);
+        errorAlert.classList.add(`typo-${config.typography}`);
         
         // Apply position
-        errorAlert.classList.add(`position-${options.position}`);
+        errorAlert.classList.add(`position-${config.position}`);
         
         // Apply visual effects
-        if (options.shadow) errorAlert.classList.add('effect-shadow');
-        if (options.border) errorAlert.classList.add('effect-border');
-        if (options.gradient) errorAlert.classList.add('effect-gradient');
-        if (options.glow) errorAlert.classList.add('effect-glow');
+        if (config.shadow) errorAlert.classList.add('effect-shadow');
+        if (config.border) errorAlert.classList.add('effect-border');
+        if (config.gradient) errorAlert.classList.add('effect-gradient');
+        if (config.glow) errorAlert.classList.add('effect-glow');
         
         // Function to close error alert
         function closeErrorAlert() {
+            if (!sessionData.dismissed) {
+                sessionData.dismissed = true;
+                sessionData.dismissTime = Date.now();
+                const responseTime = sessionData.dismissTime - sessionData.alertShownTime;
+                trackInteraction('dismiss', { responseTime: responseTime });
+                saveSession();
+                updateAnalyticsDisplay();
+            }
+            
             errorAlert.remove();
             const overlay = document.querySelector('.modal-overlay');
             if (overlay) {
                 overlay.remove();
             }
+            
+            // Re-enable start button
+            startBtn.disabled = false;
+            startBtn.textContent = 'Start New Test';
         }
         
+        // Track clicks on the alert
+        errorAlert.addEventListener('click', function(e) {
+            if (e.target !== dismissBtn) {
+                trackInteraction('alert_click', { target: 'alert_body' });
+            }
+        });
+        
+        // Track dismiss button click
+        dismissBtn.addEventListener('click', function() {
+            trackInteraction('button_click', { target: 'dismiss_button' });
+            closeErrorAlert();
+        });
+        
         // Add modal overlay for center position
-        if (options.position === 'center') {
+        if (config.position === 'center') {
             const overlay = document.createElement('div');
             overlay.className = 'modal-overlay';
             overlay.setAttribute('role', 'button');
@@ -147,11 +213,15 @@ document.addEventListener('DOMContentLoaded', function() {
             errorAlert.focus();
             
             // Close on overlay click
-            overlay.addEventListener('click', closeErrorAlert);
+            overlay.addEventListener('click', function() {
+                trackInteraction('overlay_click');
+                closeErrorAlert();
+            });
             
             // Close on Escape key
             function handleKeyDown(e) {
                 if (e.key === 'Escape') {
+                    trackInteraction('escape_key');
                     closeErrorAlert();
                     document.removeEventListener('keydown', handleKeyDown);
                 }
@@ -162,75 +232,200 @@ document.addEventListener('DOMContentLoaded', function() {
             overlay.addEventListener('keydown', function(e) {
                 if (e.key === 'Enter' || e.key === ' ') {
                     e.preventDefault();
+                    trackInteraction('overlay_keyboard');
                     closeErrorAlert();
                 }
             });
-        } else if (options.position === 'top' || options.position === 'toast') {
+        } else if (config.position === 'top' || config.position === 'toast') {
             document.body.appendChild(errorAlert);
         } else {
             errorContainer.appendChild(errorAlert);
         }
         
         // Apply animation
-        if (options.animation !== 'none') {
-            errorAlert.classList.add(`animate-${options.animation}`);
+        if (config.animation !== 'none') {
+            errorAlert.classList.add(`animate-${config.animation}`);
         }
         
         // Play sound effect
-        if (options.sound !== 'none') {
-            playSound(options.sound);
+        if (config.sound !== 'none') {
+            playSound(config.sound);
         }
         
-        // Auto-remove toast and top notifications after 5 seconds
-        if (options.position === 'toast' || options.position === 'top') {
-            setTimeout(function() {
-                errorAlert.style.opacity = '0';
-                errorAlert.style.transition = 'opacity 0.3s ease';
-                setTimeout(function() {
-                    errorAlert.remove();
-                }, 300);
-            }, 5000);
-        }
+        // Record alert shown time
+        sessionData.alertShownTime = Date.now();
+        trackInteraction('alert_shown', { config: config });
     }
     
-    // Form submission handler
-    testForm.addEventListener('submit', function(e) {
-        e.preventDefault();
+    // Start button handler
+    startBtn.addEventListener('click', function() {
+        // Initialize new session
+        sessionData = {
+            sessionId: generateSessionId(),
+            startTime: Date.now(),
+            alertShownTime: null,
+            interactions: [],
+            dismissed: false,
+            dismissTime: null,
+            config: getCurrentConfig()
+        };
         
-        const options = getSelectedOptions();
-        showErrorAlert(options);
+        trackInteraction('start_clicked');
+        
+        // Disable start button
+        startBtn.disabled = true;
+        startBtn.textContent = 'Test in Progress...';
+        
+        // Show error alert with current configuration
+        showErrorAlert(sessionData.config);
     });
     
-    // Reset button handler
-    resetBtn.addEventListener('click', function() {
-        // Clear error display
-        errorContainer.innerHTML = '';
-        
-        // Remove any errors from body
-        const bodyErrors = document.querySelectorAll('body > .error-alert');
-        bodyErrors.forEach(error => error.remove());
-        
-        // Remove any modal overlays
-        const overlays = document.querySelectorAll('.modal-overlay');
-        overlays.forEach(overlay => overlay.remove());
-        
-        // Reset form
-        testForm.reset();
-        
-        // Visual feedback
-        resetBtn.textContent = '✅ Reset Complete!';
-        setTimeout(function() {
-            resetBtn.textContent = 'Reset Test';
-        }, 2000);
+    // Researcher panel toggle
+    toggleResearcher.addEventListener('click', function() {
+        researcherPanel.classList.toggle('active');
     });
     
-    // Add change listeners to play preview sounds
-    const soundRadios = document.querySelectorAll('input[name="sound"]');
-    soundRadios.forEach(radio => {
-        radio.addEventListener('change', function() {
-            if (this.value !== 'none') {
-                playSound(this.value);
-            }
+    closePanel.addEventListener('click', function() {
+        researcherPanel.classList.remove('active');
+    });
+    
+    // Preview button
+    previewBtn.addEventListener('click', function() {
+        const config = getCurrentConfig();
+        showErrorAlert(config);
+    });
+    
+    // Reset configuration
+    resetConfig.addEventListener('click', function() {
+        document.getElementById('animationSelect').value = 'shake';
+        document.getElementById('colorSelect').value = 'aggressive-red';
+        document.getElementById('typographySelect').value = 'bold';
+        document.getElementById('soundSelect').value = 'alert';
+        document.getElementById('positionSelect').value = 'inline';
+        document.getElementById('shadowCheck').checked = true;
+        document.getElementById('borderCheck').checked = false;
+        document.getElementById('iconCheck').checked = true;
+        document.getElementById('gradientCheck').checked = false;
+        document.getElementById('glowCheck').checked = false;
+    });
+    
+    // Clear analytics
+    clearAnalytics.addEventListener('click', function() {
+        if (confirm('Are you sure you want to clear all analytics data? This cannot be undone.')) {
+            allSessions = [];
+            localStorage.removeItem('vulnerableInterfaceSessions');
+            updateAnalyticsDisplay();
+        }
+    });
+    
+    // Export analytics
+    exportAnalytics.addEventListener('click', function() {
+        if (allSessions.length === 0) {
+            alert('No data to export.');
+            return;
+        }
+        
+        const csv = generateCSV(allSessions);
+        downloadCSV(csv, 'vulnerable-interface-data.csv');
+    });
+    
+    // Helper functions
+    function generateSessionId() {
+        return 'session_' + Date.now() + '_' + Math.random().toString(36).slice(2, 11);
+    }
+    
+    function saveSession() {
+        allSessions.push(sessionData);
+        localStorage.setItem('vulnerableInterfaceSessions', JSON.stringify(allSessions));
+    }
+    
+    function loadSessionsFromStorage() {
+        const stored = localStorage.getItem('vulnerableInterfaceSessions');
+        return stored ? JSON.parse(stored) : [];
+    }
+    
+    function updateAnalyticsDisplay() {
+        if (allSessions.length === 0) {
+            analyticsDisplay.innerHTML = '<p class="no-data">No test sessions recorded yet. Participant clicks will be tracked here.</p>';
+            return;
+        }
+        
+        let html = '<div class="analytics-summary">';
+        html += `<p><strong>Total Sessions:</strong> ${allSessions.length}</p>`;
+        
+        // Calculate average response time
+        const completedSessions = allSessions.filter(s => s.dismissed);
+        if (completedSessions.length > 0) {
+            const avgResponseTime = completedSessions.reduce((sum, s) => {
+                return sum + (s.dismissTime - s.alertShownTime);
+            }, 0) / completedSessions.length;
+            html += `<p><strong>Avg Response Time:</strong> ${(avgResponseTime / 1000).toFixed(2)}s</p>`;
+            
+            const avgClicks = completedSessions.reduce((sum, s) => {
+                return sum + s.interactions.filter(i => i.type.includes('click')).length;
+            }, 0) / completedSessions.length;
+            html += `<p><strong>Avg Clicks:</strong> ${avgClicks.toFixed(1)}</p>`;
+        }
+        html += '</div>';
+        
+        html += '<div class="session-list"><h4>Recent Sessions:</h4>';
+        allSessions.slice(-5).reverse().forEach((session, index) => {
+            const responseTime = session.dismissed ? 
+                ((session.dismissTime - session.alertShownTime) / 1000).toFixed(2) + 's' : 
+                'Not completed';
+            const clickCount = session.interactions.filter(i => i.type.includes('click')).length;
+            html += `<div class="session-item">
+                <strong>Session ${allSessions.length - index}</strong>
+                <span>Response: ${responseTime}</span>
+                <span>Clicks: ${clickCount}</span>
+            </div>`;
         });
-    });
+        html += '</div>';
+        
+        analyticsDisplay.innerHTML = html;
+    }
+    
+    function generateCSV(sessions) {
+        let csv = 'Session ID,Start Time,Alert Shown,Dismissed,Response Time (ms),Total Clicks,Alert Clicks,Button Clicks,Overlay Clicks,Config Animation,Config Color,Config Typography,Config Sound,Config Position\n';
+        
+        sessions.forEach(session => {
+            const responseTime = session.dismissed ? session.dismissTime - session.alertShownTime : 'N/A';
+            const totalClicks = session.interactions.filter(i => i.type.includes('click')).length;
+            const alertClicks = session.interactions.filter(i => i.type === 'alert_click').length;
+            const buttonClicks = session.interactions.filter(i => i.type === 'button_click').length;
+            const overlayClicks = session.interactions.filter(i => i.type === 'overlay_click').length;
+            
+            csv += `${session.sessionId},`;
+            csv += `${new Date(session.startTime).toISOString()},`;
+            csv += `${session.alertShownTime ? new Date(session.alertShownTime).toISOString() : 'N/A'},`;
+            csv += `${session.dismissed},`;
+            csv += `${responseTime},`;
+            csv += `${totalClicks},`;
+            csv += `${alertClicks},`;
+            csv += `${buttonClicks},`;
+            csv += `${overlayClicks},`;
+            csv += `${session.config?.animation || 'N/A'},`;
+            csv += `${session.config?.color || 'N/A'},`;
+            csv += `${session.config?.typography || 'N/A'},`;
+            csv += `${session.config?.sound || 'N/A'},`;
+            csv += `${session.config?.position || 'N/A'}\n`;
+        });
+        
+        return csv;
+    }
+    
+    function downloadCSV(csv, filename) {
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.setAttribute('hidden', '');
+        a.setAttribute('href', url);
+        a.setAttribute('download', filename);
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    }
+    
+    // Initialize analytics display
+    updateAnalyticsDisplay();
 });
