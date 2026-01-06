@@ -423,17 +423,182 @@ footer p {
 }
 
 @media (max-width: 768px) {
+    body {
+        padding: 10px;
+    }
+
     .container {
-        padding: 20px;
+        padding: 20px 15px;
     }
 
     header h1 {
-        font-size: 2em;
+        font-size: 1.8em;
+    }
+    
+    .subtitle {
+        font-size: 1em;
+    }
+    
+    .instructions {
+        padding: 15px;
+    }
+    
+    .instructions h2 {
+        font-size: 1.3em;
+    }
+    
+    .test-area {
+        gap: 20px;
+    }
+    
+    .form-container,
+    .design-controls {
+        padding: 20px 15px;
+    }
+    
+    .design-controls {
+        max-height: none;
+    }
+    
+    .control-group h4 {
+        font-size: 1em;
     }
     
     .position-toast {
         right: 10px;
         left: 10px;
         min-width: auto;
+    }
+    
+    .position-center {
+        min-width: 95%;
+        max-width: 95%;
+    }
+    
+    .error-alert {
+        padding: 15px;
+        font-size: 0.95em;
+    }
+}
+
+@media (max-width: 480px) {
+    body {
+        padding: 5px;
+    }
+    
+    .container {
+        padding: 15px 10px;
+        border-radius: 8px;
+    }
+    
+    header {
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+    }
+    
+    header h1 {
+        font-size: 1.5em;
+    }
+    
+    .subtitle {
+        font-size: 0.9em;
+    }
+    
+    .instructions {
+        padding: 12px;
+        margin-bottom: 20px;
+    }
+    
+    .instructions h2 {
+        font-size: 1.1em;
+    }
+    
+    .instructions p {
+        font-size: 0.9em;
+    }
+    
+    .test-area {
+        gap: 15px;
+    }
+    
+    .form-container h3,
+    .design-controls h3 {
+        font-size: 1.1em;
+        margin-bottom: 10px;
+    }
+    
+    .form-container p,
+    .design-controls > p {
+        font-size: 0.9em;
+    }
+    
+    .form-container,
+    .design-controls {
+        padding: 15px 12px;
+    }
+    
+    .form-group {
+        margin-bottom: 15px;
+    }
+    
+    .form-group label {
+        font-size: 0.9em;
+    }
+    
+    .form-group input {
+        padding: 8px;
+        font-size: 0.95em;
+    }
+    
+    .btn {
+        padding: 10px 20px;
+        font-size: 0.95em;
+    }
+    
+    .control-group {
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+    }
+    
+    .control-group h4 {
+        font-size: 0.95em;
+        margin-bottom: 10px;
+    }
+    
+    .radio-group,
+    .checkbox-group {
+        gap: 6px;
+    }
+    
+    .radio-group label,
+    .checkbox-group label {
+        padding: 6px;
+        font-size: 0.9em;
+    }
+    
+    .radio-group input,
+    .checkbox-group input {
+        margin-right: 8px;
+    }
+    
+    .error-alert {
+        padding: 12px;
+        font-size: 0.9em;
+    }
+    
+    .position-center {
+        min-width: 98%;
+        max-width: 98%;
+        padding: 15px;
+    }
+    
+    footer {
+        margin-top: 30px;
+        padding-top: 15px;
+        font-size: 0.85em;
+    }
+    
+    footer p {
+        margin-bottom: 3px;
     }
 }
