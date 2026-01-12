@@ -1,53 +1,73 @@
 # The Vulnerable Interface
 
-A user research platform designed to study how **design elements** affect user reactions and behavior when encountering error alerts in web interfaces.
+A user research platform designed to study how **design elements and human resemblance factors** affect user reactions and behavior when encountering error alerts in web interfaces.
 
 ## Overview
 
-This project is a **research testing platform** that allows researchers to study how different design treatments of error messages impact user behavior. The platform tracks detailed analytics including response time, number of clicks, and user interaction patterns.
+This project is an **automated 5-step research testing platform** that allows researchers to study how different design treatments and human-like qualities of error messages impact user behavior. The platform automatically presents 5 different randomized error alerts in sequence, tracking detailed analytics including response time per step, click patterns, and interaction types.
 
 ## Research Focus
 
 This platform helps answer questions like:
-- How do different design elements (animation, color, typography, sound) affect user stress levels?
-- What is the correlation between design intensity and response time?
-- How do users interact with different error alert positions?
-- Which design combinations lead to faster error acknowledgment?
-- What patterns emerge in user clicking behavior?
+- How do human resemblance elements (empathetic messages, friendly avatars) affect user emotional response?
+- What is the correlation between design intensity and response time across multiple exposures?
+- Do users respond differently to friendly/casual vs formal/robotic error tones?
+- Which avatar types (😊 human, 🤖 robot, 🎭 abstract, ⚠️ warning) create the most positive reactions?
+- How does user behavior change from first error alert to fifth?
+- What design combinations lead to faster error acknowledgment?
+- What patterns emerge in user clicking behavior across multiple steps?
 
 ## Key Features
 
 ### For Participants (Test Subjects)
-- **Simple Interface**: Just a "Start Test" button - no form filling required
-- **Natural Interaction**: Users interact with error alerts as they naturally would
+- **Automated 5-Step Flow**: Single "Start Test" button triggers sequence of 5 randomized error alerts
+- **Natural Interaction**: Users interact with each alert as they naturally would
 - **Anonymous Tracking**: Interaction data collected without personal information
+- **Progress Indicator**: Visual feedback showing "Step X of 5"
+- **Varied Experience**: Each of the 5 steps uses completely different random design combination
 
 ### For Researchers
-- **Hidden Controls**: Design configuration panel accessible only via Researcher Mode
-- **Real-time Analytics**: Track response times, clicks, and interaction patterns
-- **Design Configuration**: Control all design elements:
+- **Automated Testing**: Random combinations generated automatically - not controlled by researcher panel
+- **Human Resemblance Elements**: Varied message tones and avatars:
+  - Avatars: 😊 (friendly human), 🤖 (robot), 🎭 (abstract), ⚠️ (warning icon)
+  - Tones: Empathetic, Robotic, Casual, Formal, Apologetic, Friendly, Warm, Technical
+  - Messages: "We're really sorry...", "ERROR: System malfunction...", "Oops! We hit a snag..."
+- **Design Element Randomization**: Each step gets random:
   - 6 animation styles (shake, bounce, pulse, fade, slide, none)
   - 5 color schemes (aggressive red, soft red, orange, neutral, dark)
   - 5 typography options (bold, normal, light, serif, monospace)
   - 5 sound effects (alert beep, error buzz, soft notification, click, none)
-  - 5 visual effects (shadow, border, icon, gradient, glow)
   - 4 position layouts (inline, top banner, center modal, toast)
+- **Step-by-Step Analytics**: Track each of the 5 steps independently
+- **Real-time Dashboard**: Monitor metrics as participants complete all 5 steps
+- **Completion Summary**: Average response time and click statistics across all steps
 
 ### Analytics & Data Collection
 
-**Tracked Metrics:**
+**Tracked Metrics Per Step:**
+- Step number (1-5)
 - Session ID and timestamps
 - Response time (time from alert shown to dismissal)
-- Total clicks
+- Total clicks per step
 - Click types (alert body clicks, button clicks, overlay clicks)
 - Keyboard interactions (Escape key usage)
-- Design configuration used for each session
+- Human resemblance configuration:
+  - Avatar type (😊 🤖 🎭 ⚠️)
+  - Message tone (empathetic, robotic, casual, formal, etc.)
+  - Actual message content
+- Design configuration:
+  - Animation style
+  - Color scheme  
+  - Typography
+  - Sound effect
+  - Position layout
 
 **Data Export:**
-- CSV export functionality for statistical analysis
-- Session-by-session breakdown
-- Aggregate statistics (average response time, average clicks)
-- Configuration correlation data
+- CSV export with step-by-step breakdown
+- Each row represents one step from one session
+- Columns include: Session ID, Step Number, Response Time, Clicks, Avatar, Tone, Message, Animation, Color, etc.
+- Aggregate statistics (average response time across all steps, total clicks)
+- Ready for statistical analysis in R, Python, SPSS, Excel
 
 ## How to Use
 
@@ -60,19 +80,24 @@ This platform helps answer questions like:
 
 **For Participants:**
 1. Open the interface (researcher panel is hidden by default)
-2. Read the instructions
+2. Read the welcome instructions
 3. Click "Start Test" button
-4. Interact naturally with the error alert
-5. Click "OK" or dismiss the alert
-6. Optionally run another test
+4. **Step 1 of 5**: First error alert appears with random design + human resemblance elements
+5. Interact naturally and click "OK" to dismiss
+6. **Step 2 of 5**: Second alert appears automatically (different random combination)
+7. Continue through all 5 steps
+8. **Completion**: View summary statistics after step 5
 
 **For Researchers:**
-1. Click "🔬 Researcher Mode" button at the bottom
-2. Configure desired design elements in the side panel
-3. Click "Preview Design" to test configuration
-4. Share the URL with participants (panel auto-hides)
-5. Monitor analytics as sessions complete
-6. Export data via "Export Data (CSV)" button
+1. Set up the platform on a device/browser
+2. Click "🔬 Researcher Mode" button to access analytics dashboard
+3. (Optional) Use "Preview Random Design" to see example combinations
+4. Share the URL with participants
+5. Researcher panel auto-hides for participants
+6. Monitor real-time analytics as participants complete the 5-step sequence
+7. View step-by-step breakdown showing performance per alert
+8. Export comprehensive data via "Export Data (CSV)" button
+9. Analyze correlation between human resemblance elements, design choices, and user response patterns
 
 ## Technical Details
 
@@ -85,25 +110,37 @@ This platform helps answer questions like:
 
 ## Analytics Data Structure
 
-Each session captures:
+Each session captures 5 steps:
 ```
 {
   sessionId: "session_timestamp_randomid",
   startTime: timestamp,
-  alertShownTime: timestamp,
-  dismissTime: timestamp,
-  dismissed: boolean,
-  interactions: [
+  steps: [
     {
-      type: "start_clicked|alert_shown|button_click|alert_click|dismiss",
-      timestamp: number,
-      timeSinceStart: number,
-      timeSinceAlert: number
-    }
-  ],
-  config: {
-    animation, color, typography, sound, position, effects...
-  }
+      stepNumber: 1,
+      config: {
+        avatar: "😊",
+        tone: "empathetic",
+        message: "We're really sorry...",
+        animation: "bounce",
+        color: "soft-red",
+        typography: "normal",
+        sound: "soft",
+        position: "center"
+      },
+      alertShownTime: timestamp,
+      dismissTime: timestamp,
+      responseTime: milliseconds,
+      dismissed: true,
+      clicks: {
+        total: 2,
+        alert: 0,
+        button: 1,
+        overlay: 1
+      }
+    },
+    // ... steps 2-5
+  ]
 }
 ```
 
@@ -134,11 +171,14 @@ vulnerable-interface-test/
 ## Design Principles Tested
 
 This platform enables research into:
-- **Emotional Design**: How visual elements evoke feelings
-- **Attention Management**: Which designs capture focus
-- **Cognitive Load**: Impact of design complexity
-- **Response Urgency**: How design affects perceived severity
-- **User Behavior**: Patterns in dismissal and interaction
+- **Human Resemblance**: How empathetic language and friendly avatars affect user trust and emotional response
+- **Tone Impact**: Differences between empathetic, robotic, casual, and formal messaging
+- **Emotional Design**: How visual elements combined with message tone evoke feelings
+- **Multi-Step Behavior**: How user reactions change across multiple error exposures
+- **Attention Management**: Which designs capture focus across sequential alerts
+- **Cognitive Load**: Impact of design complexity over multiple interactions
+- **Response Patterns**: Changes in dismissal speed from first to fifth alert
+- **User Adaptation**: How quickly users adapt to error alert patterns
 
 ## Privacy & Ethics
 

@@ -1,42 +1,118 @@
-// The Vulnerable Interface - Research Platform with Analytics
+// The Vulnerable Interface - 5-Step Automated Flow with Human Resemblance
+// Research Platform with Analytics
 
 document.addEventListener('DOMContentLoaded', function() {
-    // UI Elements
-    const startBtn = document.getElementById('startBtn');
-    const errorContainer = document.getElementById('errorContainer');
-    const toggleResearcher = document.getElementById('toggleResearcher');
-    const researcherPanel = document.getElementById('researcherPanel');
-    const closePanel = document.getElementById('closePanel');
-    const previewBtn = document.getElementById('previewBtn');
-    const resetConfig = document.getElementById('resetConfig');
-    const clearAnalytics = document.getElementById('clearAnalytics');
-    const exportAnalytics = document.getElementById('exportAnalytics');
-    const analyticsDisplay = document.getElementById('analyticsDisplay');
-    
-    // Analytics tracking
+    // Configuration pools for randomization
+    const humanResemblanceMessages = [
+        {
+            avatar: '😊',
+            tone: 'empathetic',
+            message: "We're really sorry, but something went wrong. Don't worry, it's not your fault! We're working on fixing this."
+        },
+        {
+            avatar: '🤖',
+            tone: 'robotic',
+            message: "ERROR: System malfunction detected. Operation terminated. Contact system administrator for assistance."
+        },
+        {
+            avatar: '😊',
+            tone: 'casual',
+            message: "Oops! We hit a small snag. No worries though - our team is on it! Thanks for your patience."
+        },
+        {
+            avatar: '⚠️',
+            tone: 'formal',
+            message: "Operation failed. The requested action could not be completed. Please retry or contact support."
+        },
+        {
+            avatar: '🎭',
+            tone: 'apologetic',
+            message: "We sincerely apologize for the inconvenience. An unexpected error occurred. This will be resolved soon."
+        },
+        {
+            avatar: '😊',
+            tone: 'friendly',
+            message: "Hi there! Something didn't quite work as expected. Let's try that again in a moment, okay?"
+        },
+        {
+            avatar: '🤖',
+            tone: 'technical',
+            message: "SYSTEM ERROR 0x4F3A - Process execution halted. Diagnostic report generated. Retry recommended."
+        },
+        {
+            avatar: '😊',
+            tone: 'warm',
+            message: "Oh no! We encountered a problem. Please don't worry - these things happen and we're fixing it right now."
+        }
+    ];
+
+    const animations = ['shake', 'bounce', 'pulse', 'fade', 'slide', 'none'];
+    const colors = ['aggressive-red', 'soft-red', 'orange', 'neutral', 'dark'];
+    const typographies = ['bold', 'normal', 'light', 'serif', 'mono'];
+    const sounds = ['alert', 'error', 'soft', 'click', 'none'];
+    const positions = ['inline', 'top', 'center', 'toast'];
+
+    // State management
+    let currentStep = 0;
+    const totalSteps = 5;
+    let stepConfigs = [];
     let sessionData = {
         sessionId: generateSessionId(),
         startTime: null,
-        alertShownTime: null,
-        interactions: [],
-        dismissed: false,
-        dismissTime: null
+        steps: []
     };
-    
-    let allSessions = loadSessionsFromStorage();
-    
-    // Audio context for sound effects
+
+    // UI Elements
+    const startBtn = document.getElementById('startBtn');
+    const errorContainer = document.getElementById('errorContainer');
+    const progressContainer = document.getElementById('progressContainer');
+    const progressText = document.getElementById('progressText');
+    const progressFill = document.getElementById('progressFill');
+    const completionScreen = document.getElementById('completionScreen');
+    const completionStats = document.getElementById('completionStats');
+    const toggleResearcher = document.getElementById('toggleResearcher');
+    const researcherPanel = document.getElementById('researcherPanel');
+    const closePanel = document.getElementById('closePanel');
+    const clearAnalytics = document.getElementById('clearAnalytics');
+    const exportAnalytics = document.getElementById('exportAnalytics');
+    const analyticsDisplay = document.getElementById('analyticsDisplay');
+    const previewBtn = document.getElementById('previewBtn');
+
+    // Audio context
     let audioContext = null;
-    
+
     function initAudioContext() {
         if (!audioContext) {
             audioContext = new (window.AudioContext || window.webkitAudioContext)();
         }
         return audioContext;
     }
-    
-    // Sound effect generator
+
+    // Generate random configuration for each step
+    function generateRandomConfig() {
+        const messageConfig = humanResemblanceMessages[Math.floor(Math.random() * humanResemblanceMessages.length)];
+        return {
+            ...messageConfig,
+            animation: animations[Math.floor(Math.random() * animations.length)],
+            color: colors[Math.floor(Math.random() * colors.length)],
+            typography: typographies[Math.floor(Math.random() * typographies.length)],
+            sound: sounds[Math.floor(Math.random() * sounds.length)],
+            position: positions[Math.floor(Math.random() * positions.length)]
+        };
+    }
+
+    // Generate all 5 step configurations at the start
+    function initializeStepConfigs() {
+        stepConfigs = [];
+        for (let i = 0; i < totalSteps; i++) {
+            stepConfigs.push(generateRandomConfig());
+        }
+    }
+
+    // Sound generation
     function playSound(type) {
+        if (type === 'none') return;
+        
         const ctx = initAudioContext();
         const oscillator = ctx.createOscillator();
         const gainNode = ctx.createGain();
@@ -49,382 +125,315 @@ document.addEventListener('DOMContentLoaded', function() {
                 oscillator.frequency.value = 800;
                 oscillator.type = 'square';
                 gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
-                gainNode.gain.linearRampToValueAtTime(0.001, ctx.currentTime + 0.3);
-                oscillator.start(ctx.currentTime);
-                oscillator.stop(ctx.currentTime + 0.3);
+                gainNode.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.2);
+                oscillator.start();
+                oscillator.stop(ctx.currentTime + 0.2);
                 break;
             case 'error':
                 oscillator.frequency.value = 200;
                 oscillator.type = 'sawtooth';
                 gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
-                gainNode.gain.linearRampToValueAtTime(0.001, ctx.currentTime + 0.5);
-                oscillator.start(ctx.currentTime);
-                oscillator.stop(ctx.currentTime + 0.5);
+                gainNode.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.3);
+                oscillator.start();
+                oscillator.stop(ctx.currentTime + 0.3);
                 break;
             case 'soft':
                 oscillator.frequency.value = 600;
                 oscillator.type = 'sine';
                 gainNode.gain.setValueAtTime(0.2, ctx.currentTime);
-                gainNode.gain.linearRampToValueAtTime(0.001, ctx.currentTime + 0.4);
-                oscillator.start(ctx.currentTime);
+                gainNode.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.4);
+                oscillator.start();
                 oscillator.stop(ctx.currentTime + 0.4);
                 break;
             case 'click':
-                oscillator.frequency.value = 1000;
+                oscillator.frequency.value = 1200;
                 oscillator.type = 'sine';
-                gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
-                gainNode.gain.linearRampToValueAtTime(0.001, ctx.currentTime + 0.1);
-                oscillator.start(ctx.currentTime);
-                oscillator.stop(ctx.currentTime + 0.1);
+                gainNode.gain.setValueAtTime(0.2, ctx.currentTime);
+                gainNode.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.05);
+                oscillator.start();
+                oscillator.stop(ctx.currentTime + 0.05);
                 break;
         }
     }
-    
-    // Get current design configuration
-    function getCurrentConfig() {
-        return {
-            animation: document.getElementById('animationSelect').value,
-            color: document.getElementById('colorSelect').value,
-            typography: document.getElementById('typographySelect').value,
-            sound: document.getElementById('soundSelect').value,
-            position: document.getElementById('positionSelect').value,
-            shadow: document.getElementById('shadowCheck').checked,
-            border: document.getElementById('borderCheck').checked,
-            icon: document.getElementById('iconCheck').checked,
-            gradient: document.getElementById('gradientCheck').checked,
-            glow: document.getElementById('glowCheck').checked
-        };
-    }
-    
-    // Track interaction
-    function trackInteraction(eventType, details = {}) {
-        const interaction = {
-            type: eventType,
-            timestamp: Date.now(),
-            timeSinceStart: sessionData.startTime ? Date.now() - sessionData.startTime : 0,
-            timeSinceAlert: sessionData.alertShownTime ? Date.now() - sessionData.alertShownTime : 0,
-            ...details
-        };
-        sessionData.interactions.push(interaction);
-    }
-    
-    // Create and show error alert
+
+    // Show error alert with configuration
     function showErrorAlert(config) {
-        // Clear previous error
-        errorContainer.innerHTML = '';
-        
-        // Remove any existing modal overlay
-        const existingOverlay = document.querySelector('.modal-overlay');
-        if (existingOverlay) {
-            existingOverlay.remove();
-        }
-        
-        // Create error alert element
-        const errorAlert = document.createElement('div');
-        errorAlert.className = 'error-alert';
-        errorAlert.setAttribute('role', 'alert');
-        errorAlert.setAttribute('aria-live', 'assertive');
-        
-        // Add icon if selected
-        if (config.icon) {
-            const iconSpan = document.createElement('span');
-            iconSpan.setAttribute('aria-label', 'Warning');
-            iconSpan.textContent = '⚠️ ';
-            iconSpan.style.fontSize = '1.5em';
-            iconSpan.style.marginRight = '10px';
-            errorAlert.appendChild(iconSpan);
-        }
-        
-        // Add text content
-        const textSpan = document.createElement('span');
-        textSpan.textContent = 'Error: Please fill in all required fields before submitting.';
-        errorAlert.appendChild(textSpan);
-        
-        // Add dismiss button
-        const dismissBtn = document.createElement('button');
-        dismissBtn.className = 'btn-dismiss';
-        dismissBtn.textContent = 'OK';
-        dismissBtn.setAttribute('aria-label', 'Dismiss error alert');
-        errorAlert.appendChild(dismissBtn);
-        
-        // Apply color scheme
-        errorAlert.classList.add(`color-${config.color}`);
-        
-        // Apply typography
-        errorAlert.classList.add(`typo-${config.typography}`);
-        
-        // Apply position
-        errorAlert.classList.add(`position-${config.position}`);
-        
-        // Apply visual effects
-        if (config.shadow) errorAlert.classList.add('effect-shadow');
-        if (config.border) errorAlert.classList.add('effect-border');
-        if (config.gradient) errorAlert.classList.add('effect-gradient');
-        if (config.glow) errorAlert.classList.add('effect-glow');
-        
-        // Function to close error alert
-        function closeErrorAlert() {
-            if (!sessionData.dismissed) {
-                sessionData.dismissed = true;
-                sessionData.dismissTime = Date.now();
-                const responseTime = sessionData.dismissTime - sessionData.alertShownTime;
-                trackInteraction('dismiss', { responseTime: responseTime });
-                saveSession();
-                updateAnalyticsDisplay();
-            }
-            
-            errorAlert.remove();
-            const overlay = document.querySelector('.modal-overlay');
-            if (overlay) {
-                overlay.remove();
-            }
-            
-            // Re-enable start button
-            startBtn.disabled = false;
-            startBtn.textContent = 'Start New Test';
-        }
-        
-        // Track clicks on the alert
-        errorAlert.addEventListener('click', function(e) {
-            if (e.target !== dismissBtn) {
-                trackInteraction('alert_click', { target: 'alert_body' });
-            }
-        });
-        
-        // Track dismiss button click
-        dismissBtn.addEventListener('click', function() {
-            trackInteraction('button_click', { target: 'dismiss_button' });
-            closeErrorAlert();
-        });
-        
-        // Add modal overlay for center position
-        if (config.position === 'center') {
-            const overlay = document.createElement('div');
-            overlay.className = 'modal-overlay';
-            overlay.setAttribute('role', 'button');
-            overlay.setAttribute('aria-label', 'Close error message');
-            overlay.setAttribute('tabindex', '0');
-            document.body.appendChild(overlay);
-            document.body.appendChild(errorAlert);
-            
-            // Make error alert focusable
-            errorAlert.setAttribute('tabindex', '0');
-            errorAlert.focus();
-            
-            // Close on overlay click
-            overlay.addEventListener('click', function() {
-                trackInteraction('overlay_click');
-                closeErrorAlert();
-            });
-            
-            // Close on Escape key
-            function handleKeyDown(e) {
-                if (e.key === 'Escape') {
-                    trackInteraction('escape_key');
-                    closeErrorAlert();
-                    document.removeEventListener('keydown', handleKeyDown);
-                }
-            }
-            document.addEventListener('keydown', handleKeyDown);
-            
-            // Close on overlay Enter/Space
-            overlay.addEventListener('keydown', function(e) {
-                if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    trackInteraction('overlay_keyboard');
-                    closeErrorAlert();
-                }
-            });
-        } else if (config.position === 'top' || config.position === 'toast') {
-            document.body.appendChild(errorAlert);
-        } else {
-            errorContainer.appendChild(errorAlert);
-        }
-        
-        // Apply animation
-        if (config.animation !== 'none') {
-            errorAlert.classList.add(`animate-${config.animation}`);
-        }
-        
-        // Play sound effect
-        if (config.sound !== 'none') {
-            playSound(config.sound);
-        }
-        
-        // Record alert shown time
-        sessionData.alertShownTime = Date.now();
-        trackInteraction('alert_shown', { config: config });
-    }
-    
-    // Start button handler
-    startBtn.addEventListener('click', function() {
-        // Initialize new session
-        sessionData = {
-            sessionId: generateSessionId(),
-            startTime: Date.now(),
-            alertShownTime: null,
-            interactions: [],
+        const stepData = {
+            stepNumber: currentStep + 1,
+            config: config,
+            alertShownTime: Date.now(),
+            clicks: { total: 0, alert: 0, button: 0, overlay: 0 },
             dismissed: false,
-            dismissTime: null,
-            config: getCurrentConfig()
+            dismissTime: null
         };
         
-        trackInteraction('start_clicked');
+        sessionData.steps.push(stepData);
+
+        // Play sound
+        playSound(config.sound);
+
+        // Create alert HTML
+        const alertHTML = `
+            <div class="error-alert error-${config.position} color-${config.color} typography-${config.typography} animation-${config.animation}" id="currentAlert" role="alert" aria-live="assertive">
+                <div class="error-overlay" id="errorOverlay"></div>
+                <div class="error-content" id="errorContent">
+                    <div class="error-avatar">${config.avatar}</div>
+                    <div class="error-message">
+                        <div class="error-tone-badge">${config.tone}</div>
+                        ${config.message}
+                    </div>
+                    <button class="btn btn-dismiss" id="dismissBtn">OK</button>
+                </div>
+            </div>
+        `;
+
+        errorContainer.innerHTML = alertHTML;
+
+        // Add click tracking
+        const alertElement = document.getElementById('currentAlert');
+        const dismissBtn = document.getElementById('dismissBtn');
+        const errorContent = document.getElementById('errorContent');
+        const errorOverlay = document.getElementById('errorOverlay');
+
+        alertElement.addEventListener('click', () => {
+            stepData.clicks.total++;
+        });
+
+        errorContent.addEventListener('click', (e) => {
+            if (e.target === errorContent) {
+                stepData.clicks.alert++;
+            }
+        });
+
+        dismissBtn.addEventListener('click', () => {
+            stepData.clicks.button++;
+            dismissAlert();
+        });
+
+        errorOverlay.addEventListener('click', () => {
+            stepData.clicks.overlay++;
+            dismissAlert();
+        });
+
+        // Keyboard support
+        document.addEventListener('keydown', handleEscapeKey);
+    }
+
+    function handleEscapeKey(e) {
+        if (e.key === 'Escape') {
+            dismissAlert();
+        }
+    }
+
+    // Dismiss alert and move to next step
+    function dismissAlert() {
+        const stepData = sessionData.steps[currentStep];
+        if (stepData && !stepData.dismissed) {
+            stepData.dismissed = true;
+            stepData.dismissTime = Date.now();
+            stepData.responseTime = stepData.dismissTime - stepData.alertShownTime;
+        }
+
+        document.removeEventListener('keydown', handleEscapeKey);
+        errorContainer.innerHTML = '';
+
+        currentStep++;
+
+        if (currentStep < totalSteps) {
+            // Show next step
+            setTimeout(() => {
+                updateProgress();
+                showErrorAlert(stepConfigs[currentStep]);
+            }, 500);
+        } else {
+            // Test complete
+            showCompletion();
+        }
+    }
+
+    // Update progress indicator
+    function updateProgress() {
+        progressText.textContent = `Step ${currentStep + 1} of ${totalSteps}`;
+        const percentage = ((currentStep + 1) / totalSteps) * 100;
+        progressFill.style.width = `${percentage}%`;
+    }
+
+    // Show completion screen
+    function showCompletion() {
+        progressContainer.style.display = 'none';
         
-        // Disable start button
-        startBtn.disabled = true;
-        startBtn.textContent = 'Test in Progress...';
+        // Calculate statistics
+        const totalTime = sessionData.steps.reduce((sum, step) => sum + (step.responseTime || 0), 0);
+        const avgTime = (totalTime / totalSteps / 1000).toFixed(2);
+        const totalClicks = sessionData.steps.reduce((sum, step) => sum + step.clicks.total, 0);
+
+        completionStats.innerHTML = `
+            <div class="stat-item">
+                <div class="stat-value">${totalSteps}</div>
+                <div class="stat-label">Steps Completed</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">${avgTime}s</div>
+                <div class="stat-label">Average Response Time</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">${totalClicks}</div>
+                <div class="stat-label">Total Clicks</div>
+            </div>
+        `;
+
+        completionScreen.style.display = 'block';
+
+        // Save session data
+        saveSession();
+        updateAnalyticsDisplay();
+    }
+
+    // Start the test
+    startBtn.addEventListener('click', () => {
+        sessionData.startTime = Date.now();
+        initializeStepConfigs();
+        currentStep = 0;
         
-        // Show error alert with current configuration
-        showErrorAlert(sessionData.config);
+        // Hide instructions and start button
+        document.querySelector('.instructions').style.display = 'none';
+        startBtn.style.display = 'none';
+        
+        // Show progress
+        progressContainer.style.display = 'block';
+        updateProgress();
+        
+        // Show first alert
+        showErrorAlert(stepConfigs[currentStep]);
     });
-    
-    // Researcher panel toggle
-    toggleResearcher.addEventListener('click', function() {
-        researcherPanel.classList.toggle('active');
+
+    // Researcher panel
+    toggleResearcher.addEventListener('click', () => {
+        researcherPanel.classList.add('active');
     });
-    
-    closePanel.addEventListener('click', function() {
+
+    closePanel.addEventListener('click', () => {
         researcherPanel.classList.remove('active');
     });
-    
+
     // Preview button
-    previewBtn.addEventListener('click', function() {
-        const config = getCurrentConfig();
-        showErrorAlert(config);
+    previewBtn.addEventListener('click', () => {
+        const randomConfig = generateRandomConfig();
+        showErrorAlert(randomConfig);
     });
-    
-    // Reset configuration
-    resetConfig.addEventListener('click', function() {
-        document.getElementById('animationSelect').value = 'shake';
-        document.getElementById('colorSelect').value = 'aggressive-red';
-        document.getElementById('typographySelect').value = 'bold';
-        document.getElementById('soundSelect').value = 'alert';
-        document.getElementById('positionSelect').value = 'inline';
-        document.getElementById('shadowCheck').checked = true;
-        document.getElementById('borderCheck').checked = false;
-        document.getElementById('iconCheck').checked = true;
-        document.getElementById('gradientCheck').checked = false;
-        document.getElementById('glowCheck').checked = false;
-    });
-    
-    // Clear analytics
-    clearAnalytics.addEventListener('click', function() {
-        if (confirm('Are you sure you want to clear all analytics data? This cannot be undone.')) {
-            allSessions = [];
+
+    // Analytics functions
+    function saveSession() {
+        const sessions = loadSessionsFromStorage();
+        sessions.push(sessionData);
+        localStorage.setItem('vulnerableInterfaceSessions', JSON.stringify(sessions));
+    }
+
+    function loadSessionsFromStorage() {
+        const data = localStorage.getItem('vulnerableInterfaceSessions');
+        return data ? JSON.parse(data) : [];
+    }
+
+    function updateAnalyticsDisplay() {
+        const sessions = loadSessionsFromStorage();
+        
+        if (sessions.length === 0) {
+            analyticsDisplay.innerHTML = '<p class="no-data">No test sessions recorded yet.</p>';
+            return;
+        }
+
+        let html = `
+            <div class="analytics-summary">
+                <h4>Overall Statistics</h4>
+                <p><strong>Total Sessions:</strong> ${sessions.length}</p>
+        `;
+
+        // Calculate averages across all sessions
+        let totalAvgResponseTime = 0;
+        let totalAvgClicks = 0;
+        
+        sessions.forEach(session => {
+            const sessionAvgTime = session.steps.reduce((sum, step) => sum + (step.responseTime || 0), 0) / session.steps.length;
+            const sessionTotalClicks = session.steps.reduce((sum, step) => sum + step.clicks.total, 0);
+            totalAvgResponseTime += sessionAvgTime;
+            totalAvgClicks += sessionTotalClicks;
+        });
+
+        html += `
+                <p><strong>Average Response Time:</strong> ${(totalAvgResponseTime / sessions.length / 1000).toFixed(2)}s</p>
+                <p><strong>Average Clicks per Session:</strong> ${(totalAvgClicks / sessions.length).toFixed(1)}</p>
+            </div>
+        `;
+
+        // Show last 5 sessions
+        html += '<div class="session-list"><h4>Recent Sessions</h4>';
+        sessions.slice(-5).reverse().forEach((session, idx) => {
+            const sessionAvgTime = session.steps.reduce((sum, step) => sum + (step.responseTime || 0), 0) / session.steps.length;
+            const sessionTotalClicks = session.steps.reduce((sum, step) => sum + step.clicks.total, 0);
+            
+            html += `
+                <div class="session-item">
+                    <strong>Session ${session.sessionId.slice(0, 8)}</strong><br>
+                    Avg Response: ${(sessionAvgTime / 1000).toFixed(2)}s | Clicks: ${sessionTotalClicks}
+                </div>
+            `;
+        });
+        html += '</div>';
+
+        analyticsDisplay.innerHTML = html;
+    }
+
+    clearAnalytics.addEventListener('click', () => {
+        if (confirm('Clear all analytics data?')) {
             localStorage.removeItem('vulnerableInterfaceSessions');
             updateAnalyticsDisplay();
         }
     });
-    
-    // Export analytics
-    exportAnalytics.addEventListener('click', function() {
-        if (allSessions.length === 0) {
-            alert('No data to export.');
+
+    exportAnalytics.addEventListener('click', () => {
+        const sessions = loadSessionsFromStorage();
+        if (sessions.length === 0) {
+            alert('No data to export');
             return;
         }
-        
-        const csv = generateCSV(allSessions);
-        downloadCSV(csv, 'vulnerable-interface-data.csv');
-    });
-    
-    // Helper functions
-    function generateSessionId() {
-        return 'session_' + Date.now() + '_' + Math.random().toString(36).slice(2, 11);
-    }
-    
-    function saveSession() {
-        allSessions.push(sessionData);
-        localStorage.setItem('vulnerableInterfaceSessions', JSON.stringify(allSessions));
-    }
-    
-    function loadSessionsFromStorage() {
-        const stored = localStorage.getItem('vulnerableInterfaceSessions');
-        return stored ? JSON.parse(stored) : [];
-    }
-    
-    function updateAnalyticsDisplay() {
-        if (allSessions.length === 0) {
-            analyticsDisplay.innerHTML = '<p class="no-data">No test sessions recorded yet. Participant clicks will be tracked here.</p>';
-            return;
-        }
-        
-        let html = '<div class="analytics-summary">';
-        html += `<p><strong>Total Sessions:</strong> ${allSessions.length}</p>`;
-        
-        // Calculate average response time
-        const completedSessions = allSessions.filter(s => s.dismissed);
-        if (completedSessions.length > 0) {
-            const avgResponseTime = completedSessions.reduce((sum, s) => {
-                return sum + (s.dismissTime - s.alertShownTime);
-            }, 0) / completedSessions.length;
-            html += `<p><strong>Avg Response Time:</strong> ${(avgResponseTime / 1000).toFixed(2)}s</p>`;
-            
-            const avgClicks = completedSessions.reduce((sum, s) => {
-                return sum + s.interactions.filter(i => i.type.includes('click')).length;
-            }, 0) / completedSessions.length;
-            html += `<p><strong>Avg Clicks:</strong> ${avgClicks.toFixed(1)}</p>`;
-        }
-        html += '</div>';
-        
-        html += '<div class="session-list"><h4>Recent Sessions:</h4>';
-        allSessions.slice(-5).reverse().forEach((session, index) => {
-            const responseTime = session.dismissed ? 
-                ((session.dismissTime - session.alertShownTime) / 1000).toFixed(2) + 's' : 
-                'Not completed';
-            const clickCount = session.interactions.filter(i => i.type.includes('click')).length;
-            html += `<div class="session-item">
-                <strong>Session ${allSessions.length - index}</strong>
-                <span>Response: ${responseTime}</span>
-                <span>Clicks: ${clickCount}</span>
-            </div>`;
-        });
-        html += '</div>';
-        
-        analyticsDisplay.innerHTML = html;
-    }
-    
-    function generateCSV(sessions) {
-        let csv = 'Session ID,Start Time,Alert Shown,Dismissed,Response Time (ms),Total Clicks,Alert Clicks,Button Clicks,Overlay Clicks,Config Animation,Config Color,Config Typography,Config Sound,Config Position\n';
+
+        let csv = 'Session ID,Step Number,Start Time,Alert Shown,Dismissed,Response Time (ms),Total Clicks,Alert Clicks,Button Clicks,Overlay Clicks,Avatar,Tone,Message,Animation,Color,Typography,Sound,Position\n';
         
         sessions.forEach(session => {
-            const responseTime = session.dismissed ? session.dismissTime - session.alertShownTime : 'N/A';
-            const totalClicks = session.interactions.filter(i => i.type.includes('click')).length;
-            const alertClicks = session.interactions.filter(i => i.type === 'alert_click').length;
-            const buttonClicks = session.interactions.filter(i => i.type === 'button_click').length;
-            const overlayClicks = session.interactions.filter(i => i.type === 'overlay_click').length;
-            
-            csv += `${session.sessionId},`;
-            csv += `${new Date(session.startTime).toISOString()},`;
-            csv += `${session.alertShownTime ? new Date(session.alertShownTime).toISOString() : 'N/A'},`;
-            csv += `${session.dismissed},`;
-            csv += `${responseTime},`;
-            csv += `${totalClicks},`;
-            csv += `${alertClicks},`;
-            csv += `${buttonClicks},`;
-            csv += `${overlayClicks},`;
-            csv += `${session.config?.animation || 'N/A'},`;
-            csv += `${session.config?.color || 'N/A'},`;
-            csv += `${session.config?.typography || 'N/A'},`;
-            csv += `${session.config?.sound || 'N/A'},`;
-            csv += `${session.config?.position || 'N/A'}\n`;
+            session.steps.forEach(step => {
+                csv += `"${session.sessionId}",`;
+                csv += `${step.stepNumber},`;
+                csv += `"${new Date(session.startTime).toISOString()}",`;
+                csv += `"${new Date(step.alertShownTime).toISOString()}",`;
+                csv += `${step.dismissed},`;
+                csv += `${step.responseTime || 0},`;
+                csv += `${step.clicks.total},`;
+                csv += `${step.clicks.alert},`;
+                csv += `${step.clicks.button},`;
+                csv += `${step.clicks.overlay},`;
+                csv += `"${step.config.avatar}",`;
+                csv += `"${step.config.tone}",`;
+                csv += `"${step.config.message.replace(/"/g, '""')}",`;
+                csv += `"${step.config.animation}",`;
+                csv += `"${step.config.color}",`;
+                csv += `"${step.config.typography}",`;
+                csv += `"${step.config.sound}",`;
+                csv += `"${step.config.position}"\n`;
+            });
         });
-        
-        return csv;
-    }
-    
-    function downloadCSV(csv, filename) {
+
         const blob = new Blob([csv], { type: 'text/csv' });
-        const url = window.URL.createObjectURL(blob);
+        const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
-        a.setAttribute('hidden', '');
-        a.setAttribute('href', url);
-        a.setAttribute('download', filename);
-        document.body.appendChild(a);
+        a.href = url;
+        a.download = `vulnerable-interface-data-${Date.now()}.csv`;
         a.click();
-        document.body.removeChild(a);
+    });
+
+    function generateSessionId() {
+        return Date.now().toString(36) + Math.random().toString(36).slice(2);
     }
-    
-    // Initialize analytics display
+
+    // Initialize
     updateAnalyticsDisplay();
 });

@@ -3,12 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Vulnerable Interface - Research Platform</title>
+    <title>The Vulnerable Interface - 5-Step Research Platform</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
-        <!-- Researcher Controls (Hidden by default) -->
+        <!-- Main Participant Interface -->
+        <div class="main-content">
+            <div class="header">
+                <h1>The Vulnerable Interface</h1>
+                <p class="subtitle">Research on Design Elements in Error Alerts</p>
+            </div>
+
+            <!-- Progress Indicator (hidden initially) -->
+            <div class="progress-container" id="progressContainer" style="display: none;">
+                <div class="progress-text" id="progressText">Step 1 of 5</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+            </div>
+
+            <div class="test-area">
+                <div class="instructions">
+                    <h2>Welcome to the Study</h2>
+                    <p>You'll experience 5 different error alerts in sequence.</p>
+                    <p>Please respond to each alert naturally by clicking "OK".</p>
+                    <p>Your interaction patterns will be recorded anonymously for research purposes.</p>
+                </div>
+                
+                <button class="btn btn-start" id="startBtn">Start Test</button>
+                
+                <!-- Error alert container -->
+                <div id="errorContainer"></div>
+
+                <!-- Completion screen -->
+                <div class="completion-screen" id="completionScreen" style="display: none;">
+                    <div class="completion-icon">✓</div>
+                    <h2>Test Complete!</h2>
+                    <p>Thank you for participating.</p>
+                    <div class="completion-stats" id="completionStats"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Researcher Mode Button (bottom of page) -->
+        <button class="btn-researcher-toggle" id="toggleResearcher">🔬 Researcher Mode</button>
+
+        <!-- Researcher Panel (Hidden by default) -->
         <div class="researcher-panel" id="researcherPanel">
             <div class="panel-header">
                 <h2>🔬 Researcher Controls</h2>
@@ -16,8 +57,13 @@
             </div>
             
             <div class="panel-content">
-                <h3>Design Configuration</h3>
-                <p class="help-text">Configure the error alert design that will be shown to participants</p>
+                <div class="info-box">
+                    <h3>ℹ️ Test Mode: Automated 5-Step Flow</h3>
+                    <p>The test now runs automatically with randomized design combinations per step. The configuration controls below are for preview/testing purposes only.</p>
+                </div>
+
+                <h3>Design Preview Configuration</h3>
+                <p class="help-text">These controls let you preview designs but don't affect the automated test flow</p>
                 
                 <div class="config-group">
                     <h4>Animation Style</h4>
@@ -42,89 +88,20 @@
                     </select>
                 </div>
 
-                <div class="config-group">
-                    <h4>Typography</h4>
-                    <select id="typographySelect">
-                        <option value="bold">Bold & Large</option>
-                        <option value="normal">Normal Weight</option>
-                        <option value="light">Light & Small</option>
-                        <option value="serif">Serif Font</option>
-                        <option value="mono">Monospace</option>
-                    </select>
-                </div>
-
-                <div class="config-group">
-                    <h4>Sound Effect</h4>
-                    <select id="soundSelect">
-                        <option value="alert">Alert Beep</option>
-                        <option value="error">Error Buzz</option>
-                        <option value="soft">Soft Notification</option>
-                        <option value="click">UI Click</option>
-                        <option value="none">No Sound</option>
-                    </select>
-                </div>
-
-                <div class="config-group">
-                    <h4>Visual Effects</h4>
-                    <div class="checkbox-list">
-                        <label><input type="checkbox" id="shadowCheck" checked> Drop Shadow</label>
-                        <label><input type="checkbox" id="borderCheck"> Thick Border</label>
-                        <label><input type="checkbox" id="iconCheck" checked> Warning Icon</label>
-                        <label><input type="checkbox" id="gradientCheck"> Gradient Background</label>
-                        <label><input type="checkbox" id="glowCheck"> Glow Effect</label>
-                    </div>
-                </div>
-
-                <div class="config-group">
-                    <h4>Position</h4>
-                    <select id="positionSelect">
-                        <option value="inline">Inline (Below Button)</option>
-                        <option value="top">Top Banner</option>
-                        <option value="center">Center Modal</option>
-                        <option value="toast">Toast (Top Right)</option>
-                    </select>
-                </div>
-
-                <button class="btn btn-preview" id="previewBtn">Preview Design</button>
-                <button class="btn btn-reset-config" id="resetConfig">Reset to Defaults</button>
+                <button class="btn btn-preview" id="previewBtn">Preview Random Design</button>
             </div>
 
             <div class="analytics-section">
                 <h3>📊 Session Analytics</h3>
                 <div id="analyticsDisplay">
-                    <p class="no-data">No test sessions recorded yet. Participant clicks will be tracked here.</p>
+                    <p class="no-data">No test sessions recorded yet.</p>
                 </div>
                 <button class="btn btn-secondary" id="clearAnalytics">Clear Analytics Data</button>
                 <button class="btn btn-secondary" id="exportAnalytics">Export Data (CSV)</button>
             </div>
         </div>
-
-        <!-- Main Test Interface -->
-        <header>
-            <h1>The Vulnerable Interface</h1>
-            <p class="subtitle">User Experience Research Study</p>
-        </header>
-
-        <div class="instructions">
-            <h2>Welcome to the Study</h2>
-            <p>This is a research study on user interface interactions. When you click the button below, an alert message will appear. Please interact with it naturally - there are no right or wrong answers.</p>
-            <p class="instruction-note">Your interaction patterns will be recorded anonymously for research purposes.</p>
-        </div>
-
-        <div class="test-interface">
-            <div class="test-content">
-                <button class="btn btn-start" id="startBtn">Start Test</button>
-                <div id="errorContainer"></div>
-            </div>
-        </div>
-
-        <footer>
-            <p>Visual Design Research Prototype | The Vulnerable Interface</p>
-            <p class="note">Testing the impact of design elements on user emotional response</p>
-            <button class="researcher-access-btn" id="toggleResearcher">🔬 Researcher Mode</button>
-        </footer>
     </div>
 
-    <script src="script.js"></script>
+    <script src="script_5step.js"></script>
 </body>
 </html>
