@@ -125,7 +125,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 oscillator.frequency.value = 800;
                 oscillator.type = 'square';
                 gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
-                gainNode.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.2);
+                gainNode.gain.linearRampToValueAtTime(0.001, ctx.currentTime + 0.2);
                 oscillator.start();
                 oscillator.stop(ctx.currentTime + 0.2);
                 break;
@@ -133,7 +133,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 oscillator.frequency.value = 200;
                 oscillator.type = 'sawtooth';
                 gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
-                gainNode.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.3);
+                gainNode.gain.linearRampToValueAtTime(0.001, ctx.currentTime + 0.3);
                 oscillator.start();
                 oscillator.stop(ctx.currentTime + 0.3);
                 break;
@@ -141,7 +141,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 oscillator.frequency.value = 600;
                 oscillator.type = 'sine';
                 gainNode.gain.setValueAtTime(0.2, ctx.currentTime);
-                gainNode.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.4);
+                gainNode.gain.linearRampToValueAtTime(0.001, ctx.currentTime + 0.4);
                 oscillator.start();
                 oscillator.stop(ctx.currentTime + 0.4);
                 break;
@@ -149,7 +149,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 oscillator.frequency.value = 1200;
                 oscillator.type = 'sine';
                 gainNode.gain.setValueAtTime(0.2, ctx.currentTime);
-                gainNode.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.05);
+                gainNode.gain.linearRampToValueAtTime(0.001, ctx.currentTime + 0.05);
                 oscillator.start();
                 oscillator.stop(ctx.currentTime + 0.05);
                 break;
