@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Vulnerable Interface - Enhanced Empathy Testing</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Main Participant Interface -->
+        <div class="main-content">
+            <div class="header">
+                <h1>The Vulnerable Interface</h1>
+                <p class="subtitle">Research Study on Interface Interaction</p>
+            </div>
+
+            <!-- Progress Indicator (hidden initially) -->
+            <div class="progress-container" id="progressContainer" style="display: none;">
+                <div class="progress-text" id="progressText">Step 1 of 5</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+            </div>
+
+            <div class="test-area">
+                <div class="instructions" id="instructions">
+                    <h2>Welcome to the Study</h2>
+                    <p>You'll experience 5 different interactions in sequence.</p>
+                    <p>Please respond naturally to each interaction.</p>
+                    <p>Your responses will be recorded anonymously for research purposes.</p>
+                </div>
+                
+                <button class="btn btn-start" id="startBtn">Start Test</button>
+                
+                <!-- Error alert container -->
+                <div id="errorContainer"></div>
+
+                <!-- Completion screen -->
+                <div class="completion-screen" id="completionScreen" style="display: none;">
+                    <div class="completion-icon">✓</div>
+                    <h2>Test Complete!</h2>
+                    <p>Thank you for participating.</p>
+                    <div class="completion-stats" id="completionStats"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Researcher Mode Panel -->
+        <div class="researcher-panel" id="researcherPanel" style="display: none;">
+            <div class="panel-header">
+                <h2>🔬 Researcher Dashboard</h2>
+                <button class="btn-close" id="closePanel">×</button>
+            </div>
+            
+            <div class="panel-content">
+                <div class="analytics-section">
+                    <h3>Session Analytics</h3>
+                    <div id="analyticsDisplay" class="analytics-display">
+                        <p class="no-data">No session data yet. Run a test to see analytics.</p>
+                    </div>
+                </div>
+                
+                <div class="panel-actions">
+                    <button class="btn btn-secondary" id="clearAnalytics">Clear Data</button>
+                    <button class="btn btn-primary" id="exportAnalytics">Export Data (CSV)</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Researcher Mode Button (bottom of page) -->
+        <button class="btn-researcher-toggle" id="toggleResearcher">🔬 Researcher Mode</button>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
