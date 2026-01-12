@@ -3,46 +3,49 @@
 
 document.addEventListener('DOMContentLoaded', function() {
     // Configuration pools - using Lorem Ipsum and design elements only
+    // Using single consistent error message as requested
+    const errorMessage = "Lorem ipsum dolor sit amet, consectetur adipiscing elit.";
+    
     const designConfigurations = [
         {
             avatar: '😊',
             visualTone: 'warm',  // Internal only, not shown to user
-            message: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt."
+            message: errorMessage
         },
         {
             avatar: '🤖',
             visualTone: 'robotic',
-            message: "Lorem ipsum dolor sit amet. Consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore."
+            message: errorMessage
         },
         {
             avatar: '😊',
             visualTone: 'friendly',
-            message: "Lorem ipsum dolor sit amet, consectetur adipiscing elit! Ut labore et dolore magna aliqua."
+            message: errorMessage
         },
         {
             avatar: '⚠️',
             visualTone: 'warning',
-            message: "Lorem ipsum dolor sit amet. Consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore."
+            message: errorMessage
         },
         {
             avatar: '🎭',
             visualTone: 'apologetic',
-            message: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore."
+            message: errorMessage
         },
         {
             avatar: '😊',
             visualTone: 'empathetic',
-            message: "Lorem ipsum dolor sit amet! Consectetur adipiscing elit, sed do eiusmod tempor incididunt."
+            message: errorMessage
         },
         {
             avatar: '🤖',
             visualTone: 'cold',
-            message: "Lorem ipsum dolor sit amet. Consectetur adipiscing elit sed do eiusmod."
+            message: errorMessage
         },
         {
             avatar: '😌',
             visualTone: 'calm',
-            message: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut labore et dolore magna aliqua."
+            message: errorMessage
         }
     ];
 
@@ -53,6 +56,22 @@ document.addEventListener('DOMContentLoaded', function() {
     // Enhanced sound types with vocal-like qualities
     const vocalSounds = ['aww', 'sigh', 'reassure', 'frustration', 'gentle', 'none'];
     const positions = ['inline', 'top', 'center', 'toast'];
+    
+    // Button layout positions - creates friction by varying placement
+    const buttonLayouts = [
+        'horizontal-center',  // Standard horizontal center
+        'horizontal-left',    // Horizontal left-aligned
+        'horizontal-right',   // Horizontal right-aligned
+        'vertical-left',      // Vertical stack on left
+        'vertical-right',     // Vertical stack on right
+        'vertical-center',    // Vertical stack centered
+        'diagonal-tl-br',     // Diagonal from top-left to bottom-right
+        'diagonal-tr-bl',     // Diagonal from top-right to bottom-left
+        'scattered-wide'      // Scattered across wider area
+    ];
+    
+    // Wait times between steps (ms) - variable friction testing
+    const waitTimes = [500, 1000, 1500, 2000, 2500];
 
     // State management
     let currentStep = 0;
@@ -99,7 +118,9 @@ document.addEventListener('DOMContentLoaded', function() {
             color: colors[Math.floor(Math.random() * colors.length)],
             typography: typographies[Math.floor(Math.random() * typographies.length)],
             vocalSound: vocalSounds[Math.floor(Math.random() * vocalSounds.length)],
-            position: positions[Math.floor(Math.random() * positions.length)]
+            position: positions[Math.floor(Math.random() * positions.length)],
+            buttonLayout: buttonLayouts[Math.floor(Math.random() * buttonLayouts.length)],
+            waitTime: waitTimes[Math.floor(Math.random() * waitTimes.length)]
         };
     }
 
@@ -111,7 +132,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Enhanced vocal-like sound generation
+    // Enhanced vocal-like sound generation with human resemblance
     function playVocalSound(type) {
         if (type === 'none') return;
         
@@ -119,130 +140,240 @@ document.addEventListener('DOMContentLoaded', function() {
         
         switch(type) {
             case 'aww':
-                // Sympathetic "aww" sound - descending frequency sweep
+                // Sympathetic "aww" sound - human vocal formants
                 playAwwSound(ctx);
                 break;
             case 'sigh':
-                // Long sigh - slow amplitude modulation
+                // Long sigh - breath-like noise with pitch drop
                 playSighSound(ctx);
                 break;
             case 'reassure':
-                // Gentle reassurance - soft harmonics
+                // Gentle reassurance - warm vocal tone with vibrato
                 playReassureSound(ctx);
                 break;
             case 'frustration':
-                // Frustration - harsh buzzing
+                // Frustration - tense vocal tone with edge
                 playFrustrationSound(ctx);
                 break;
             case 'gentle':
-                // Gentle tone - pure sine wave
+                // Gentle tone - soft vocal with slight flutter
                 playGentleSound(ctx);
                 break;
         }
     }
 
     function playAwwSound(ctx) {
-        const oscillator = ctx.createOscillator();
+        // More human-like "aww" with formant structure
+        const fundamental = ctx.createOscillator();
+        const formant1 = ctx.createOscillator();
+        const formant2 = ctx.createOscillator();
         const gainNode = ctx.createGain();
+        const formantGain1 = ctx.createGain();
+        const formantGain2 = ctx.createGain();
         
-        oscillator.connect(gainNode);
+        // Fundamental frequency
+        fundamental.connect(gainNode);
+        fundamental.type = 'sawtooth';
+        fundamental.frequency.setValueAtTime(220, ctx.currentTime); // A3
+        fundamental.frequency.exponentialRampToValueAtTime(180, ctx.currentTime + 0.7);
+        
+        // Formant 1 (vowel "ah" first formant ~700Hz)
+        formant1.connect(formantGain1);
+        formantGain1.connect(gainNode);
+        formant1.type = 'sine';
+        formant1.frequency.setValueAtTime(700, ctx.currentTime);
+        formant1.frequency.exponentialRampToValueAtTime(650, ctx.currentTime + 0.7);
+        formantGain1.gain.value = 0.3;
+        
+        // Formant 2 (vowel "ah" second formant ~1200Hz)
+        formant2.connect(formantGain2);
+        formantGain2.connect(gainNode);
+        formant2.type = 'sine';
+        formant2.frequency.setValueAtTime(1200, ctx.currentTime);
+        formant2.frequency.exponentialRampToValueAtTime(1100, ctx.currentTime + 0.7);
+        formantGain2.gain.value = 0.2;
+        
         gainNode.connect(ctx.destination);
         
-        oscillator.type = 'sine';
-        oscillator.frequency.setValueAtTime(800, ctx.currentTime);
-        oscillator.frequency.exponentialRampToValueAtTime(400, ctx.currentTime + 0.6);
+        // Natural envelope with attack and decay
+        gainNode.gain.setValueAtTime(0.001, ctx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.35, ctx.currentTime + 0.05); // Quick attack
+        gainNode.gain.exponentialRampToValueAtTime(0.25, ctx.currentTime + 0.3);  // Sustain
+        gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.7); // Long decay
         
-        gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
-        gainNode.gain.linearRampToValueAtTime(0.15, ctx.currentTime + 0.3);
-        gainNode.gain.linearRampToValueAtTime(0.001, ctx.currentTime + 0.6);
-        
-        oscillator.start();
-        oscillator.stop(ctx.currentTime + 0.6);
+        fundamental.start();
+        formant1.start();
+        formant2.start();
+        fundamental.stop(ctx.currentTime + 0.7);
+        formant1.stop(ctx.currentTime + 0.7);
+        formant2.stop(ctx.currentTime + 0.7);
     }
 
     function playSighSound(ctx) {
-        const oscillator = ctx.createOscillator();
-        const gainNode = ctx.createGain();
-        const lfo = ctx.createOscillator();
-        const lfoGain = ctx.createGain();
+        // Breath-like sigh with noise and pitch drop
+        const bufferSize = 2 * ctx.sampleRate;
+        const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+        const output = noiseBuffer.getChannelData(0);
         
-        oscillator.connect(gainNode);
-        lfo.connect(lfoGain);
-        lfoGain.connect(gainNode.gain);
-        gainNode.connect(ctx.destination);
+        // Generate pink-ish noise for breath quality
+        for (let i = 0; i < bufferSize; i++) {
+            output[i] = (Math.random() * 2 - 1) * 0.3;
+        }
+        
+        const noise = ctx.createBufferSource();
+        noise.buffer = noiseBuffer;
+        
+        const noiseFilter = ctx.createBiquadFilter();
+        noiseFilter.type = 'bandpass';
+        noiseFilter.frequency.value = 800;
+        noiseFilter.Q.value = 2;
+        
+        const noiseGain = ctx.createGain();
+        
+        // Pitched component for vocal quality
+        const oscillator = ctx.createOscillator();
+        const oscGain = ctx.createGain();
         
         oscillator.type = 'triangle';
-        oscillator.frequency.value = 300;
+        oscillator.frequency.setValueAtTime(400, ctx.currentTime);
+        oscillator.frequency.exponentialRampToValueAtTime(250, ctx.currentTime + 1.3);
         
-        lfo.type = 'sine';
-        lfo.frequency.value = 3; // 3 Hz modulation
-        lfoGain.gain.value = 0.1;
+        noise.connect(noiseFilter);
+        noiseFilter.connect(noiseGain);
+        oscillator.connect(oscGain);
         
-        gainNode.gain.setValueAtTime(0.25, ctx.currentTime);
-        gainNode.gain.linearRampToValueAtTime(0.001, ctx.currentTime + 1.2);
+        const masterGain = ctx.createGain();
+        noiseGain.connect(masterGain);
+        oscGain.connect(masterGain);
+        masterGain.connect(ctx.destination);
         
+        // Envelope for natural breath
+        noiseGain.gain.setValueAtTime(0.15, ctx.currentTime);
+        noiseGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.3);
+        
+        oscGain.gain.setValueAtTime(0.12, ctx.currentTime);
+        oscGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.3);
+        
+        noise.start();
         oscillator.start();
-        lfo.start();
-        oscillator.stop(ctx.currentTime + 1.2);
-        lfo.stop(ctx.currentTime + 1.2);
+        noise.stop(ctx.currentTime + 1.3);
+        oscillator.stop(ctx.currentTime + 1.3);
     }
 
     function playReassureSound(ctx) {
-        // Two oscillators for harmonics
-        const osc1 = ctx.createOscillator();
-        const osc2 = ctx.createOscillator();
+        // Warm vocal tone with gentle vibrato
+        const fundamental = ctx.createOscillator();
+        const formant = ctx.createOscillator();
+        const vibrato = ctx.createOscillator();
+        const vibratoGain = ctx.createGain();
         const gainNode = ctx.createGain();
+        const formantGain = ctx.createGain();
         
-        osc1.connect(gainNode);
-        osc2.connect(gainNode);
+        // Vibrato LFO
+        vibrato.type = 'sine';
+        vibrato.frequency.value = 5.5; // Natural vocal vibrato ~5-6 Hz
+        vibratoGain.gain.value = 8; // Pitch variation in Hz
+        vibrato.connect(vibratoGain);
+        
+        // Fundamental with vibrato
+        fundamental.type = 'sawtooth';
+        fundamental.frequency.setValueAtTime(260, ctx.currentTime); // C4
+        vibratoGain.connect(fundamental.frequency);
+        fundamental.connect(gainNode);
+        
+        // Formant for vowel color
+        formant.type = 'sine';
+        formant.frequency.value = 1000; // "oo" vowel formant
+        formant.connect(formantGain);
+        formantGain.connect(gainNode);
+        formantGain.gain.value = 0.25;
+        
         gainNode.connect(ctx.destination);
         
-        osc1.type = 'sine';
-        osc1.frequency.value = 500;
-        osc2.type = 'sine';
-        osc2.frequency.value = 750; // Perfect fifth
+        // Natural vocal envelope
+        gainNode.gain.setValueAtTime(0.001, ctx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.3, ctx.currentTime + 0.08);
+        gainNode.gain.exponentialRampToValueAtTime(0.25, ctx.currentTime + 0.4);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.9);
         
-        gainNode.gain.setValueAtTime(0.2, ctx.currentTime);
-        gainNode.gain.linearRampToValueAtTime(0.001, ctx.currentTime + 0.8);
-        
-        osc1.start();
-        osc2.start();
-        osc1.stop(ctx.currentTime + 0.8);
-        osc2.stop(ctx.currentTime + 0.8);
+        vibrato.start();
+        fundamental.start();
+        formant.start();
+        vibrato.stop(ctx.currentTime + 0.9);
+        fundamental.stop(ctx.currentTime + 0.9);
+        formant.stop(ctx.currentTime + 0.9);
     }
 
     function playFrustrationSound(ctx) {
-        const oscillator = ctx.createOscillator();
+        // Tense vocal with harsh overtones
+        const fundamental = ctx.createOscillator();
+        const overtone1 = ctx.createOscillator();
+        const overtone2 = ctx.createOscillator();
         const gainNode = ctx.createGain();
+        const overtoneGain1 = ctx.createGain();
+        const overtoneGain2 = ctx.createGain();
         
-        oscillator.connect(gainNode);
+        // Lower pitched, tense fundamental
+        fundamental.type = 'sawtooth';
+        fundamental.frequency.value = 180; // Low growl-like
+        fundamental.connect(gainNode);
+        
+        // Harsh overtones
+        overtone1.type = 'square';
+        overtone1.frequency.value = 360; // 2nd harmonic
+        overtone1.connect(overtoneGain1);
+        overtoneGain1.connect(gainNode);
+        overtoneGain1.gain.value = 0.2;
+        
+        overtone2.type = 'sawtooth';
+        overtone2.frequency.value = 540; // 3rd harmonic
+        overtone2.connect(overtoneGain2);
+        overtoneGain2.connect(gainNode);
+        overtoneGain2.gain.value = 0.15;
+        
         gainNode.connect(ctx.destination);
         
-        oscillator.type = 'sawtooth';
-        oscillator.frequency.value = 150;
+        // Abrupt, tense envelope
+        gainNode.gain.setValueAtTime(0.001, ctx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.35, ctx.currentTime + 0.03);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.45);
         
-        gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
-        gainNode.gain.linearRampToValueAtTime(0.001, ctx.currentTime + 0.4);
-        
-        oscillator.start();
-        oscillator.stop(ctx.currentTime + 0.4);
+        fundamental.start();
+        overtone1.start();
+        overtone2.start();
+        fundamental.stop(ctx.currentTime + 0.45);
+        overtone1.stop(ctx.currentTime + 0.45);
+        overtone2.stop(ctx.currentTime + 0.45);
     }
 
     function playGentleSound(ctx) {
+        // Soft vocal with slight flutter/tremolo
         const oscillator = ctx.createOscillator();
+        const tremolo = ctx.createOscillator();
+        const tremoloGain = ctx.createGain();
         const gainNode = ctx.createGain();
         
+        // Tremolo (amplitude modulation) for gentle flutter
+        tremolo.type = 'sine';
+        tremolo.frequency.value = 4.5; // Gentle flutter
+        tremolo.connect(tremoloGain);
+        tremoloGain.gain.value = 0.15; // Subtle effect
+        
+        oscillator.type = 'triangle'; // Softer than sawtooth
+        oscillator.frequency.value = 330; // E4
         oscillator.connect(gainNode);
+        
+        tremoloGain.connect(gainNode.gain);
         gainNode.connect(ctx.destination);
         
-        oscillator.type = 'sine';
-        oscillator.frequency.value = 600;
-        
+        // Very gentle envelope
         gainNode.gain.setValueAtTime(0.15, ctx.currentTime);
-        gainNode.gain.linearRampToValueAtTime(0.001, ctx.currentTime + 0.5);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.6);
         
+        tremolo.start();
         oscillator.start();
-        oscillator.stop(ctx.currentTime + 0.5);
+        tremolo.stop(ctx.currentTime + 0.6);
+        oscillator.stop(ctx.currentTime + 0.6);
     }
 
     // Show error alert with three action buttons (no labels, icons only)
@@ -263,6 +394,7 @@ document.addEventListener('DOMContentLoaded', function() {
         playVocalSound(config.vocalSound);
 
         // Create alert HTML with three action buttons (icon-only, no text labels)
+        // Button layout varies by configuration to create friction
         const alertHTML = `
             <div class="error-alert error-${config.position} color-${config.color} typography-${config.typography} animation-${config.animation}" id="currentAlert" role="alert" aria-live="assertive">
                 <div class="error-overlay" id="errorOverlay"></div>
@@ -271,7 +403,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <div class="error-message">
                         ${config.message}
                     </div>
-                    <div class="action-buttons">
+                    <div class="action-buttons layout-${config.buttonLayout}">
                         <button class="btn-action btn-close" id="actionClose" aria-label="Close" title="">❌</button>
                         <button class="btn-action btn-proceed" id="actionProceed" aria-label="Proceed" title="">➔</button>
                         <button class="btn-action btn-wait" id="actionWait" aria-label="Wait" title="">✓</button>
@@ -332,7 +464,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Dismiss alert and move to next step based on action
+    // Dismiss alert and move to next step with configured wait time
     function dismissAlert(action) {
         const stepData = sessionData.steps[currentStep];
         if (stepData && !stepData.dismissed) {
@@ -346,19 +478,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
         currentStep++;
 
-        // Different timing based on action chosen
-        let delay = 500;
-        if (action === 'proceed') {
-            delay = 300; // Quick transition if user wants to proceed
-        } else if (action === 'wait') {
-            delay = 800; // Slightly longer if user showed patience
-        } else if (action === 'close') {
-            // User wanted to exit - but continue test for research
-            delay = 600;
-        }
+        // Use the configured wait time for this step to test friction impact
+        const delay = stepConfigs[currentStep - 1]?.waitTime || 1000;
 
         if (currentStep < totalSteps) {
-            // Show next step
+            // Show next step after configured wait time
             setTimeout(() => {
                 updateProgress();
                 showErrorAlert(stepConfigs[currentStep]);
